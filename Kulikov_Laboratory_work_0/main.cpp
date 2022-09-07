@@ -4,7 +4,11 @@ using namespace std; //указываем по умолчание стандартное пространство имён (std
 
 int main() //функция, которая всегда выполняется первой (точка входа в программу)
 {
-	cout << "Hello world" << endl;
+	cout << "Hello world" << endl << "Please enter a value"<<endl;
+	char ch = 'A';
+	int test = 0;
+	//cin >> test;
+	cin >> ch;
 	return 0;
 }
 
