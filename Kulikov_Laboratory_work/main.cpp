@@ -75,22 +75,21 @@ void InputPipeDia(Pipe& p) //считывание диаметра трубы
 void InputPipeStatus(Pipe& p)//считывание статуса трубы
 {
 	system("cls");
-	int check;
+	double check;
 	do
 	{
 		cin.clear();
 		cin.ignore(1000, '\n');
 		cout << "Введите статус трубы(в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 		cin >> check;
-		p.PipeStatus = check;
-		if (cin.fail() || check<0 || check>1) //проверка корректности данных
+		if (cin.fail() || (check != 0 && check != 1)) //проверка корректности данных
 		{
-			
 			system("cls");
 			cout << "Указано некоректное число, пожалуйста, введите 0 или 1." << endl;
 		}
-		
-	} while (cin.fail() || check < 0 || check>1);
+		p.PipeStatus = check;
+	} while (cin.fail() || (check != 0 && check != 1));
+
 }
 
 void InputPipe() //функциональная часть консоли
@@ -99,7 +98,7 @@ void InputPipe() //функциональная часть консоли
 	InputPipeLength(p);
 	InputPipeDia(p);
 	InputPipeStatus(p);
-}
+} 
 
 int MainSharedConsole() //скилет функциональной части консоли
 {
@@ -129,7 +128,6 @@ int MainSharedConsole() //скилет функциональной части консоли
 		cout << "7. Загрузить";
 		break;
 	case 0:
-		cout << "0. Выход";
 		return 0;
 		break;
 	}
