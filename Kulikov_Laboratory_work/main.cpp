@@ -1,6 +1,7 @@
 #include <iostream> //подключаем библиотеку для работы с вводом и выводом (# - означает что это данные для ввода в препроцессор).
 using namespace std; //указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 
+
 struct Pipe //создание структуры труба
 {
 	double PipeLength; // Длина трубы
@@ -13,8 +14,9 @@ struct Cs //создание структуры компрессорной станции
 	string CsName; //имя КС
 	int CsWorkshop; //количество цехов КС
 	int CsWorkingWorkshops; //количество работающих цехов КС
-	double Effectiveness; //эффективность КС
+	double CsEffectiveness; //эффективность КС
 };
+
 
 bool CheckingPositiveDouble(const double& Double) //проверка на правильность ввода положительных переменных типа double
 {
@@ -51,12 +53,23 @@ bool CheckingIntRange(const int& Int, const int& beginning,const int& end)
 	{
 		cin.clear();
 		cin.ignore(1000, '\n');
-		cout << "Указано некоректное число, пожалуйста, укажите число от " << beginning << " до " << end << endl;
+		cout << "Указано некоректное число, пожалуйста, укажите целое число от " << beginning << " до " << end << endl;
 		return 0;
 	}
 	return 1;
 }
 
+bool CheckingInt(const int& Int)
+{
+	if (cin.fail() || cin.peek() != '\n')
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Указаны некоректные данные, пожалуйста, укажите целое число"<< endl;
+		return 0;
+	}
+	return 1;
+}
 
 void TextSharedConsole() //текстовая часть консоли
 {
@@ -69,6 +82,7 @@ void TextSharedConsole() //текстовая часть консоли
 		<< "7. Загрузить" << endl
 		<< "0. Выход" << endl;
 }
+
 
 
 void InputPipeLength(Pipe& p) //считывание длины трубы
@@ -100,14 +114,14 @@ void InputPipeStatus(Pipe& p)//считывание статуса трубы
 }
 
 
-void InputPipe(Pipe& p) //запрос на обновление данных по трубе и последовательность их ввода 
+void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последовательность их ввода 
 {
-	bool check;
+	double check=0;
 	if (p.PipeLength != 0)
 	{
 		cout << "Вы уверены что хотите перезаписать данные по трубе?" << endl << "Введите 1 для подтверждения операции" << endl;
 		cin >> check;
-		if (check == true)
+		if (check == 1)
 		{
 			cout << "Создание трубы" << endl;
 			InputPipeLength(p);
@@ -132,6 +146,79 @@ void InputPipe(Pipe& p) //запрос на обновление данных по трубе и последовательно
 } 
 
 
+void InputCsName(Cs& cs)
+{
+	cout << "Введите название компрессорной станции" << endl;
+	cin >> cs.CsName;
+}
+
+void InputCsWorkshop(Cs& cs)
+{
+	do
+	{
+		cout << "Введите количество цехов компрессорной станции" << endl;
+		cin >> cs.CsWorkshop;
+		if (cs.CsWorkshop <= 0)
+		{
+			cout << "Цехов должно быть не меньше 1, пожалуйста, повторите попытку ввода." << endl;
+		}
+	} while (CheckingInt(cs.CsWorkshop) == false || cs.CsWorkshop <= 0);
+}
+
+void InputCsWorkingWorkshops(Cs& cs)
+{
+	do
+	{
+		cout << "Введите количество работающих цехов" << endl;
+		cin >> cs.CsWorkingWorkshops;
+	} while (CheckingIntRange(cs.CsWorkingWorkshops,0,cs.CsWorkshop) == false);
+}
+
+void InputCsEffectiveness(Cs& cs)
+{
+	do
+	{
+		cout << "Введите эффективность станции:" << endl;
+		cin >> cs.CsEffectiveness;
+	} while (CheckingIntRange(cs.CsEffectiveness,-100,100) == false);
+}
+
+
+void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции и последовательность их ввода
+{
+	double check=0;
+	if (cs.CsWorkshop != 0)
+	{
+		cout << "Вы уверены что хотите перезаписать данные по компрессорной станции?" << endl << "Введите 1 для подтверждения операции" << endl;
+		cin >> check;
+		if (check == 1)
+		{
+			cout << "Создание компрессорной станции" << endl;
+			InputCsName(cs);
+			InputCsWorkshop(cs);
+			InputCsWorkingWorkshops(cs);
+			InputCsEffectiveness(cs);
+		}
+		else
+		{
+			cin.clear();
+			cin.ignore(1000, '\n');
+			return;
+		}
+	}
+	else
+	{
+		cout << "Создание компрессорной станции" << endl;
+		InputCsName(cs);
+		InputCsWorkshop(cs);
+		InputCsWorkingWorkshops(cs);
+		InputCsEffectiveness(cs);
+	}
+
+}
+
+
+
 int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 {
 	int item;
@@ -146,7 +233,7 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 		InputPipe(p);
 		break;
 	case 2:
-		cout << "2. Добавить КС";
+		InputCs(cs);
 		break;
 	case 3:
 		cout << "3. Просмотр всех объектов";
