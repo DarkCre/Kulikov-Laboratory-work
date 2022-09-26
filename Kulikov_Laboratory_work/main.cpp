@@ -8,7 +8,7 @@ struct Pipe //создание структуры труба
 	bool PipeStatus; //   Статус трубы (в ремонте или нет)
 }; 
 
-struct Сs //создание структуры компрессорной станции
+struct Cs //создание структуры компрессорной станции
 {
 	string CsName; //имя КС
 	int CsWorkshop; //количество цехов КС
@@ -33,7 +33,6 @@ bool CheckingPositiveDouble(const double& Double) //проверка на правильность вво
 	return 1;
 }
 
-
 bool CheckingBool(const bool& Bool) //проверка на правильность ввода переменных типа bool
 {
 	if (cin.fail() || cin.peek() != '\n' || (Bool != 0 && Bool != 1)) //проверка корректности данных
@@ -46,6 +45,19 @@ bool CheckingBool(const bool& Bool) //проверка на правильность ввода переменных 
 	return 1;
 }
 
+bool CheckingIntRange(const int& Int, const int& beginning,const int& end)
+{
+	if (cin.fail() || cin.peek() != '\n' || Int<beginning || Int>end)
+	{
+		cin.clear();
+		cin.ignore(1000, '\n');
+		cout << "Указано некоректное число, пожалуйста, укажите число от " << beginning << " до " << end << endl;
+		return 0;
+	}
+	return 1;
+}
+
+
 void TextSharedConsole() //текстовая часть консоли
 {
 	cout<< "1. Добавить трубу" << endl
@@ -57,7 +69,6 @@ void TextSharedConsole() //текстовая часть консоли
 		<< "7. Загрузить" << endl
 		<< "0. Выход" << endl;
 }
-
 
 
 void InputPipeLength(Pipe& p) //считывание длины трубы
@@ -89,9 +100,9 @@ void InputPipeStatus(Pipe& p)//считывание статуса трубы
 }
 
 
-void InputPipe(Pipe& p) //последовательность ввода данных по трубе
+void InputPipe(Pipe& p) //запрос на обновление данных по трубе и последовательность их ввода 
 {
-	double check;
+	bool check;
 	if (p.PipeLength != 0)
 	{
 		cout << "Вы уверены что хотите перезаписать данные по трубе?" << endl << "Введите 1 для подтверждения операции" << endl;
@@ -121,10 +132,14 @@ void InputPipe(Pipe& p) //последовательность ввода данных по трубе
 } 
 
 
-int MainSharedConsole(Pipe& p) //скилет функциональной части консоли
+int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 {
 	int item;
-	cin >> item;
+	do
+	{
+		cin >> item;
+	} while (CheckingIntRange(item, 0, 7) == false);
+	
 	switch (item)
 	{
 	case 1:
@@ -158,11 +173,12 @@ int MainSharedConsole(Pipe& p) //скилет функциональной части консоли
 void SharedConsole() //главная консоль
 {
 	Pipe p = {};
+	Cs cs = {};
 	bool check = true;
 	do
 	{
 		TextSharedConsole();
-		check = MainSharedConsole(p);
+		check = MainSharedConsole(p,cs);
 	} while ((check!=0));
 }
 
