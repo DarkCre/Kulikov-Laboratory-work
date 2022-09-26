@@ -1,8 +1,9 @@
 #include <iostream> //подключаем библиотеку для работы с вводом и выводом (# - означает что это данные для ввода в препроцессор).
-#include <conio.h>
+#include <conio.h> // необходима для задержки, до нажатия клавиши
+#include <fstream>// ввод в файл и вывод из файла
 using namespace std; //указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 
-
+//мои структуры
 struct Pipe //создание структуры труба
 {
 	double PipeLength; // Длина трубы
@@ -18,7 +19,7 @@ struct Cs //создание структуры компрессорной станции
 	int CsEffectiveness; //эффективность КС
 };
 
-
+//Проверка ввода разных типов данных
 bool CheckingPositiveDouble(const double& Double) //проверка на правильность ввода положительных переменных типа double
 {
 	if (cin.fail()|| cin.peek() != '\n') //проверка корректности данных
@@ -73,7 +74,7 @@ bool CheckingInt(const int& Int) //проверка на правильность ввода переменных тип
 }
 
 
-
+//Текст главной консоли
 void TextSharedConsole() //текстовая часть консоли
 {
 	cout<<"Главное меню"<<endl
@@ -88,7 +89,7 @@ void TextSharedConsole() //текстовая часть консоли
 }
 
 
-
+//Ввод параметров трубы
 void InputPipeLength(Pipe& p) //считывание длины трубы
 {
 	do
@@ -117,7 +118,7 @@ void InputPipeStatus(Pipe& p)//считывание статуса трубы
 	} while (CheckingBool(p.PipeStatus)==false);
 }
 
-
+//Ввод трубы
 void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последовательность их ввода 
 {
 	double check=0;
@@ -149,7 +150,7 @@ void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последоват
 
 } 
 
-
+//Ввод параметров Кс
 void InputCsName(Cs& cs) //считывание имени КС
 {
 	cout << "Введите название компрессорной станции" << endl;
@@ -187,7 +188,7 @@ void InputCsEffectiveness(Cs& cs) //считывание эффективности КС
 	} while (CheckingIntRange(cs.CsEffectiveness,-100,100) == false);
 }
 
-
+//Ввод Кс
 void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции и последовательность их ввода
 {
 	double check=0;
@@ -221,7 +222,7 @@ void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции
 
 }
 
-
+//Информация по элементам
 void InformationOutput(const Pipe& p, const Cs& cs) //вывод информации по трубе и КС
 {
 	cout << "Информация по трубе:" << endl;
@@ -245,7 +246,7 @@ void InformationOutput(const Pipe& p, const Cs& cs) //вывод информации по трубе 
 	}
 }
 
-
+//Редактирование трубы
 void EditingPipe(bool& PipeStatus) //редактирование трубы
 {
 	cout << endl << "Редактирование трубы:" << endl;
@@ -257,7 +258,7 @@ void EditingPipe(bool& PipeStatus) //редактирование трубы
 	cout << endl << "Данные сохранены." << endl;
 }
 
-
+//Редактирование Кс (функциональная часть)
 bool FunctionalPartEditingCs(Cs& cs, const int& item) //функциональная часть изменения КС
 {
 	int check1;
@@ -291,7 +292,7 @@ bool FunctionalPartEditingCs(Cs& cs, const int& item) //функциональная часть изм
 		return 1;
 	}
 }
-
+//Редактирование Кс (Текст и ввод)
 void EditingCs(Cs& cs) //диалоговая часть редактирования КС
 {	
 int item;
@@ -310,7 +311,48 @@ int item;
 	} while (FunctionalPartEditingCs(cs,item) == false);
 }
 
+//Вывод в файл
+void OutputInFile(const Pipe& p, const Cs& cs)
+{
+	ofstream fout;
+	fout.open("data.txt", ios::out);
+	if (fout.is_open())
+	{
+		fout << p.PipeLength << endl << p.PipeDia << endl << p.PipeStatus << endl;
+		fout << cs.CsName << endl << cs.CsWorkshop << endl << cs.CsWorkingWorkshops << endl << cs.CsEffectiveness << endl;
+		fout.close();
+		cout << "Данные сохранены." << endl;
+	}
+	else
+	{
+		cout << "Не удалось открыть файл.";
+	}
+}
 
+//Считывание из файла
+void ReadingFromFile(Pipe& p, Cs& cs)
+{
+	ifstream fin;
+	fin.open("data.txt", ios::in);
+	if (fin.is_open())
+	{
+		fin >> p.PipeLength;
+		fin >> p.PipeDia;
+		fin >> p.PipeStatus;
+		fin >> cs.CsName;
+		fin >> cs.CsWorkshop;
+		fin >> cs.CsWorkingWorkshops;
+		fin >> cs.CsEffectiveness;
+		fin.close();
+		cout << "Данные считаны." << endl;
+	}
+	else
+	{
+		cout << "Не удалось открыть файл.";
+	}
+}
+
+//Главная консоль
 int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 {
 	int item;
@@ -353,10 +395,10 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 		}
 		break;
 	case 6:
-		cout << "6. Сохранить";
+		OutputInFile(p, cs);
 		break;
 	case 7:
-		cout << "7. Загрузить";
+		ReadingFromFile(p, cs);
 		break;
 	case 0:
 		return 0;
