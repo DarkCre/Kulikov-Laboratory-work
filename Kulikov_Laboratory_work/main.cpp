@@ -54,7 +54,7 @@ bool CheckingIntRange(const int& Int, const int& beginning,const int& end) //про
 	{
 		cin.clear();
 		cin.ignore(1000, '\n');
-		cout << "Указано некоректное число, пожалуйста, укажите целое число от " << beginning << " до " << end << endl;
+		cout << "Указано некоректное число, пожалуйста, укажите целое число от " << beginning << " до " << end << endl << endl;
 		return 0;
 	}
 	return 1;
@@ -76,7 +76,8 @@ bool CheckingInt(const int& Int) //проверка на правильность ввода переменных тип
 
 void TextSharedConsole() //текстовая часть консоли
 {
-	cout<< "1. Добавить трубу" << endl
+	cout<<"Главное меню"<<endl
+		<<"1. Добавить трубу" << endl
 		<< "2. Добавить КС" << endl
 		<< "3. Просмотр всех объектов" << endl
 		<< "4. Редактировать трубу" << endl
@@ -245,6 +246,71 @@ void InformationOutput(const Pipe& p, const Cs& cs) //вывод информации по трубе 
 }
 
 
+void EditingPipe(bool& PipeStatus) //редактирование трубы
+{
+	cout << endl << "Редактирование трубы:" << endl;
+	do
+	{
+		cout << "Введите обновлённый статус трубы(в ремонте - 0, в работоспособном состоянии - 1): " << endl;
+		cin >> PipeStatus;
+	} while (CheckingBool(PipeStatus) == false);
+	cout << endl << "Данные сохранены." << endl;
+}
+
+
+bool FunctionalPartEditingCs(Cs& cs, const int& item) //функциональная часть изменения КС
+{
+	int check1;
+	int check2;
+	check1 = cs.CsWorkingWorkshops + 1;
+	check2 = cs.CsWorkingWorkshops - 1;
+	if (check1 > cs.CsWorkshop && item==1)
+	{
+		cout << "Невозможно запустить в работу больше цехов, чем существует. Пожалуйста, повторите попытку ввода." << endl;
+		return 0;
+	}
+	else if (item == 1)
+	{
+		cs.CsWorkingWorkshops++;
+		cout << endl << "Данные сохранены." << endl;
+		return 1;
+	}
+	else if (item == 0)
+	{
+		return 1;
+	}
+	else if (check2 < 0 && item == -1)
+	{
+		cout << "Невозможно уменьшить количество работающих цехов, т.к. все цехи на данный момент остановлены." << endl;
+		return 0;
+	}
+	else if (item == -1)
+	{
+		cs.CsWorkingWorkshops--;
+		cout << endl << "Данные сохранены." << endl;
+		return 1;
+	}
+}
+
+void EditingCs(Cs& cs) //диалоговая часть редактирования КС
+{	
+int item;
+	cout << endl << "Редактирование компрессорной станции:" << endl
+				 <<"На данный момент цехов в работе: "<< cs.CsWorkingWorkshops << endl << endl;
+	do
+	{
+		do
+		{
+			cout << "Введите 1 - для увеличения количества работающих цехов на 1." << endl
+				<< "Введите 0 - для возврата в главное меню." << endl
+				<< "Введите -1 - для уменьшения количества работающих цехов на 1." << endl;
+			cin >> item;
+		} while (CheckingIntRange(item, -1, 1) == false);
+	
+	} while (FunctionalPartEditingCs(cs,item) == false);
+}
+
+
 int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 {
 	int item;
@@ -265,10 +331,26 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 		InformationOutput(p, cs);
 		break;
 	case 4:
-		cout << "4. Редактировать трубу";
+		if (p.PipeLength != 0)
+		{
+			EditingPipe(p.PipeStatus);
+		}
+		else
+		{
+			cout << "Данные не возможно отредактировать. Сначала необходимо создать трубу." << endl;
+			_getch();
+		}
 		break;
 	case 5:
-		cout << "5. Редактировать КС";
+		if (cs.CsWorkshop != 0)
+		{
+			EditingCs(cs);
+		}
+		else
+		{
+			cout << "Данные не возможно отредактировать. Сначала необходимо создать компрессорную станцию." << endl;
+			_getch();
+		}
 		break;
 	case 6:
 		cout << "6. Сохранить";
@@ -294,6 +376,7 @@ void SharedConsole() //главная консоль
 		check = MainSharedConsole(p,cs);
 	} while ((check!=0));
 }
+
 
 
 int main() //точка входа в программу
