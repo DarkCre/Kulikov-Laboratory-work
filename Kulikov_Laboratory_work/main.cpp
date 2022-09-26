@@ -1,4 +1,5 @@
 #include <iostream> //подключаем библиотеку для работы с вводом и выводом (# - означает что это данные для ввода в препроцессор).
+#include <conio.h>
 using namespace std; //указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 
 
@@ -11,7 +12,7 @@ struct Pipe //создание структуры труба
 
 struct Cs //создание структуры компрессорной станции
 {
-	string CsName; //имя КС
+	string CsName; //название КС
 	int CsWorkshop; //количество цехов КС
 	int CsWorkingWorkshops; //количество работающих цехов КС
 	double CsEffectiveness; //эффективность КС
@@ -80,7 +81,7 @@ void TextSharedConsole() //текстовая часть консоли
 		<< "5. Редактировать КС" << endl
 		<< "6. Сохранить" << endl
 		<< "7. Загрузить" << endl
-		<< "0. Выход" << endl;
+		<< "0. Выход" << endl << endl;
 }
 
 
@@ -123,7 +124,7 @@ void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последоват
 		cin >> check;
 		if (check == 1)
 		{
-			cout << "Создание трубы" << endl;
+			cout << "Создание трубы:" << endl << endl;
 			InputPipeLength(p);
 			InputPipeDia(p);
 			InputPipeStatus(p);
@@ -137,7 +138,7 @@ void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последоват
 	}
 	else
 	{
-		cout << "Создание трубы" << endl;
+		cout << "Создание трубы:" << endl << endl;
 		InputPipeLength(p);
 		InputPipeDia(p);
 		InputPipeStatus(p);
@@ -193,7 +194,7 @@ void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции
 		cin >> check;
 		if (check == 1)
 		{
-			cout << "Создание компрессорной станции" << endl;
+			cout << "Создание компрессорной станции: " << endl << endl;
 			InputCsName(cs);
 			InputCsWorkshop(cs);
 			InputCsWorkingWorkshops(cs);
@@ -208,7 +209,7 @@ void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции
 	}
 	else
 	{
-		cout << "Создание компрессорной станции" << endl;
+		cout << "Создание компрессорной станции:" << endl << endl;
 		InputCsName(cs);
 		InputCsWorkshop(cs);
 		InputCsWorkingWorkshops(cs);
@@ -217,6 +218,29 @@ void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции
 
 }
 
+
+void InformationOutput(const Pipe& p, const Cs& cs)
+{
+	cout << "Информация по трубе:" << endl;
+	if (p.PipeLength != 0)
+		cout << endl << "Длина трубы: " <<p.PipeLength<< endl << "Диаметр трубы: " <<p.PipeDia<< endl << "Статус трубы: "<< (p.PipeStatus==true ? "В работе":"В ремонте") << endl;
+	else
+	{
+		cout << "Данные не найдены. Сначала необходимо создать трубу." << endl;
+	}
+
+	cout << endl << "Информация по компрессорной станции:" << endl;
+	if (cs.CsWorkshop != 0)
+	{
+		cout << endl << "Название: " << cs.CsName << endl << "Количество цехов: " << cs.CsWorkshop << endl << "Количество цехов в работе: " << cs.CsWorkingWorkshops << endl << "Эффективность: " << cs.CsEffectiveness<< endl;
+		_getch();//https://www.youtube.com/watch?v=6tGgasGBgmc - функция ожидания Enter
+	}
+	else
+	{
+		cout << "Данные не найдены. Сначала необходимо создать компрессорную станцию." << endl;
+		_getch();//https://www.youtube.com/watch?v=6tGgasGBgmc - функция ожидания Enter
+	}
+}
 
 
 int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
@@ -236,7 +260,7 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 		InputCs(cs);
 		break;
 	case 3:
-		cout << "3. Просмотр всех объектов";
+		InformationOutput(p, cs);
 		break;
 	case 4:
 		cout << "4. Редактировать трубу";
@@ -256,7 +280,6 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
 	}
 }
 
-
 void SharedConsole() //главная консоль
 {
 	Pipe p = {};
@@ -264,6 +287,7 @@ void SharedConsole() //главная консоль
 	bool check = true;
 	do
 	{
+		cout << endl;
 		TextSharedConsole();
 		check = MainSharedConsole(p,cs);
 	} while ((check!=0));
