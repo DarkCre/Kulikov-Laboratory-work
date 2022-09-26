@@ -15,7 +15,7 @@ struct Cs //создание структуры компрессорной станции
 	string CsName; //название КС
 	int CsWorkshop; //количество цехов КС
 	int CsWorkingWorkshops; //количество работающих цехов КС
-	double CsEffectiveness; //эффективность КС
+	int CsEffectiveness; //эффективность КС
 };
 
 
@@ -48,7 +48,7 @@ bool CheckingBool(const bool& Bool) //проверка на правильность ввода переменных 
 	return 1;
 }
 
-bool CheckingIntRange(const int& Int, const int& beginning,const int& end)
+bool CheckingIntRange(const int& Int, const int& beginning,const int& end) //проверка на правильность ввода переменных типа int в указанном диапазоне
 {
 	if (cin.fail() || cin.peek() != '\n' || Int<beginning || Int>end)
 	{
@@ -60,7 +60,7 @@ bool CheckingIntRange(const int& Int, const int& beginning,const int& end)
 	return 1;
 }
 
-bool CheckingInt(const int& Int)
+bool CheckingInt(const int& Int) //проверка на правильность ввода переменных типа int
 {
 	if (cin.fail() || cin.peek() != '\n')
 	{
@@ -71,6 +71,8 @@ bool CheckingInt(const int& Int)
 	}
 	return 1;
 }
+
+
 
 void TextSharedConsole() //текстовая часть консоли
 {
@@ -147,13 +149,13 @@ void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последоват
 } 
 
 
-void InputCsName(Cs& cs)
+void InputCsName(Cs& cs) //считывание имени КС
 {
 	cout << "Введите название компрессорной станции" << endl;
 	cin >> cs.CsName;
 }
 
-void InputCsWorkshop(Cs& cs)
+void InputCsWorkshop(Cs& cs) //считывание количества цехов КС
 {
 	do
 	{
@@ -166,7 +168,7 @@ void InputCsWorkshop(Cs& cs)
 	} while (CheckingInt(cs.CsWorkshop) == false || cs.CsWorkshop <= 0);
 }
 
-void InputCsWorkingWorkshops(Cs& cs)
+void InputCsWorkingWorkshops(Cs& cs) //считывание количества рабочих цехов КС
 {
 	do
 	{
@@ -175,7 +177,7 @@ void InputCsWorkingWorkshops(Cs& cs)
 	} while (CheckingIntRange(cs.CsWorkingWorkshops,0,cs.CsWorkshop) == false);
 }
 
-void InputCsEffectiveness(Cs& cs)
+void InputCsEffectiveness(Cs& cs) //считывание эффективности КС
 {
 	do
 	{
@@ -219,7 +221,7 @@ void InputCs(Cs& cs) //запрос на обновление всех данных по компрессорной станции
 }
 
 
-void InformationOutput(const Pipe& p, const Cs& cs)
+void InformationOutput(const Pipe& p, const Cs& cs) //вывод информации по трубе и КС
 {
 	cout << "Информация по трубе:" << endl;
 	if (p.PipeLength != 0)
@@ -233,12 +235,12 @@ void InformationOutput(const Pipe& p, const Cs& cs)
 	if (cs.CsWorkshop != 0)
 	{
 		cout << endl << "Название: " << cs.CsName << endl << "Количество цехов: " << cs.CsWorkshop << endl << "Количество цехов в работе: " << cs.CsWorkingWorkshops << endl << "Эффективность: " << cs.CsEffectiveness<< endl;
-		_getch();//https://www.youtube.com/watch?v=6tGgasGBgmc - функция ожидания Enter
+		_getch();//https://www.youtube.com/watch?v=6tGgasGBgmc - функция ожидания нажатия любой клавиши 
 	}
 	else
 	{
 		cout << "Данные не найдены. Сначала необходимо создать компрессорную станцию." << endl;
-		_getch();//https://www.youtube.com/watch?v=6tGgasGBgmc - функция ожидания Enter
+		_getch();
 	}
 }
 
