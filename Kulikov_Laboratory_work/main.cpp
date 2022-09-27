@@ -1,9 +1,10 @@
 ﻿#include <iostream> //подключаем библиотеку для работы с вводом и выводом (# - означает что это данные для ввода в препроцессор).
 #include <conio.h> // необходима для задержки, до нажатия клавиши
 #include <fstream>// ввод в файл и вывод из файла
+#include <string>
 using namespace std; //указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 
-//мои структуры
+//Мои структуры
 struct Pipe //создание структуры труба
 {
 	double PipeLength; // Длина трубы
@@ -19,8 +20,10 @@ struct Cs //создание структуры компрессорной ст�
 	int CsEffectiveness; //эффективность КС
 };
 
+
 //Проверка ввода разных типов данных
-bool CheckingPositiveDouble(const double& Double) //проверка на правильность ввода положительных переменных типа double
+//Проверка на правильность ввода положительных переменных типа double
+bool CheckingPositiveDouble(const double& Double) 
 {
 	if (cin.fail()|| cin.peek() != '\n') //проверка корректности данных
 	{
@@ -36,8 +39,8 @@ bool CheckingPositiveDouble(const double& Double) //проверка на пра
 	}
 	return 1;
 }
-
-bool CheckingBool(const bool& Bool) //проверка на правильность ввода переменных типа bool
+//Проверка на правильность ввода переменных типа bool
+bool CheckingBool(const bool& Bool) 
 {
 	if (cin.fail() || cin.peek() != '\n' || (Bool != 0 && Bool != 1)) //проверка корректности данных
 	{
@@ -48,8 +51,8 @@ bool CheckingBool(const bool& Bool) //проверка на правильнос
 	}
 	return 1;
 }
-
-bool CheckingIntRange(const int& Int, const int& beginning,const int& end) //проверка на правильность ввода переменных типа int в указанном диапазоне
+//Проверка на правильность ввода переменных типа int в указанном диапазоне
+bool CheckingIntRange(const int& Int, const int& beginning,const int& end)
 {
 	if (cin.fail() || cin.peek() != '\n' || Int<beginning || Int>end)
 	{
@@ -60,8 +63,8 @@ bool CheckingIntRange(const int& Int, const int& beginning,const int& end) //п�
 	}
 	return 1;
 }
-
-bool CheckingInt(const int& Int) //проверка на правильность ввода переменных типа int
+//Проверка на правильность ввода переменных типа int
+bool CheckingInt(const int& Int)
 {
 	if (cin.fail() || cin.peek() != '\n')
 	{
@@ -72,7 +75,83 @@ bool CheckingInt(const int& Int) //проверка на правильност�
 	}
 	return 1;
 }
-
+//Проверка предпологаемой интовой строки на ошибки (с добавлением моих правок)
+//https://www.techiedelight.com/ru/convert-string-to-int-cpp/   https://www.bestprog.net/ru/2018/04/26/working-with-strings-the-string-class-class-constructors-the-functions-assign-append-insert-replace-erase-find-rfind-compare-c_str-examples_ru/
+bool StringInInt(const string& String, int& Int)
+{
+	if ((String.find_first_not_of("-0123456789") == std::string::npos) == 1)
+	{
+		try {
+			Int = std::stoi(String);
+			return 0;
+		}
+		catch (std::invalid_argument e) {
+			return 1;
+		}
+	}
+	else
+	{
+		return 1;
+	}
+}
+//Проверка предпологаемой дабловой строки на ошибки (с добавлением моих правок)
+bool StringInDouble(string& String, double& Double)
+{
+	if ((String.find_first_not_of("-.0123456789") == std::string::npos) == 1)
+	{
+		size_t found = String.find(".");
+		size_t found2 = String.find(".", found + 1);
+		if (String.length() > found)
+			String.replace(found, 1, ",");
+		if (String.length() > found2)
+			return 1;
+		else
+		{
+			try 
+			{
+			Double = stod(String); https://www.geeksforgeeks.org/stdstod-stdstof-stdstold-c/ // ммм запятую превращает в точку, а в случае с точкой отбрасывает дробную часть. Что не так с этим миром...
+			return 0;
+			}
+			catch (std::invalid_argument e) 
+			{
+				return 1;
+			}
+		}
+	}
+	else
+		return 1;
+}
+//Проверка предпологаемой будевой строки на ошибки (с добавлением моих правок)
+bool StringInBool(const string& String, bool& Bool)
+{
+	if ((String.find_first_not_of("01") == std::string::npos) == 1 && String.length() == 1)
+	{
+		if (String[0] == '1')
+		{
+			Bool = 1;
+			return 0;
+		}
+		else if (String[0] == '0')
+		{
+			Bool = 0;
+			return 0;
+		}
+	}
+	else
+	{
+		return 1;
+	}
+}
+//подтверждение действий
+bool СonfirmationSaving()
+{
+	double check = 0;
+	cin >> check;
+	if (check == 1.)
+		return 1;
+	else
+		return 0;
+}
 
 //Текст главной консоли
 void TextSharedConsole() //текстовая часть консоли
@@ -88,9 +167,9 @@ void TextSharedConsole() //текстовая часть консоли
 		<< "0. Выход" << endl << endl;
 }
 
-
 //Ввод параметров трубы
-void InputPipeLength(Pipe& p) //считывание длины трубы
+//Считывание длины трубы
+void InputPipeLength(Pipe& p)
 {
 	do
 	{
@@ -98,8 +177,8 @@ void InputPipeLength(Pipe& p) //считывание длины трубы
 		cin >> p.PipeLength;
 	} while (CheckingPositiveDouble(p.PipeLength)==false);
 }
-
-void InputPipeDia(Pipe& p) //считывание диаметра трубы
+//Считывание диаметра трубы
+void InputPipeDia(Pipe& p)
 {
 	do
 	{
@@ -108,12 +187,12 @@ void InputPipeDia(Pipe& p) //считывание диаметра трубы
 		
 	} while (CheckingPositiveDouble(p.PipeDia)==false);
 }
-
-void InputPipeStatus(Pipe& p)//считывание статуса трубы
+//Считывание статуса трубы
+void InputPipeStatus(Pipe& p)
 {
 	do
 	{
-		cout << "Введите статус трубы(в ремонте - 0, в работоспособном состоянии - 1): " << endl;
+		cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 		cin >> p.PipeStatus;
 	} while (CheckingBool(p.PipeStatus)==false);
 }
@@ -124,7 +203,7 @@ void InputPipe(Pipe& p) //запрос на обновление всех дан
 	double check=0;
 	if (p.PipeLength != 0)
 	{
-		cout << "Вы уверены что хотите перезаписать данные по трубе?" << endl << "Введите 1 для подтверждения операции" << endl;
+		cout << "Вы уверены, что хотите перезаписать данные по трубе?" << endl << "Введите 1 для подтверждения операции" << endl;
 		cin >> check;
 		if (check == 1)
 		{
@@ -149,19 +228,28 @@ void InputPipe(Pipe& p) //запрос на обновление всех дан
 	}
 
 } 
-
-//Ввод параметров Кс
-void InputCsName(Cs& cs) //считывание имени КС
+//Проверка правильности структуры Трубы (по смысловым критериям)
+bool PipeInspection(const Pipe& p)
 {
-	cout << "Введите название компрессорной станции" << endl;
-	cin >> cs.CsName;
+	if ((CheckingPositiveDouble(p.PipeLength) == false) == 1 ||
+		(CheckingPositiveDouble(p.PipeDia) == false) == 1 ||
+		(CheckingBool(p.PipeStatus) == false) == 1)
+		return 0;
 }
 
-void InputCsWorkshop(Cs& cs) //считывание количества цехов КС
+//Ввод параметров Кс
+//Считывание имени КС
+void InputCsName(Cs& cs)
+{
+	cout << "Введите название компрессорной станции (на латинском языке):" << endl;
+	cin >> cs.CsName;
+}
+//Считывание количества цехов КС
+void InputCsWorkshop(Cs& cs) 
 {
 	do
 	{
-		cout << "Введите количество цехов компрессорной станции" << endl;
+		cout << "Введите количество цехов компрессорной станции:" << endl;
 		cin >> cs.CsWorkshop;
 		if (cs.CsWorkshop <= 0)
 		{
@@ -169,17 +257,17 @@ void InputCsWorkshop(Cs& cs) //считывание количества цех�
 		}
 	} while (CheckingInt(cs.CsWorkshop) == false || cs.CsWorkshop <= 0);
 }
-
-void InputCsWorkingWorkshops(Cs& cs) //считывание количества рабочих цехов КС
+//Считывание количества рабочих цехов КС
+void InputCsWorkingWorkshops(Cs& cs)
 {
 	do
 	{
-		cout << "Введите количество работающих цехов" << endl;
+		cout << "Введите количество работающих цехов:" << endl;
 		cin >> cs.CsWorkingWorkshops;
 	} while (CheckingIntRange(cs.CsWorkingWorkshops,0,cs.CsWorkshop) == false);
 }
-
-void InputCsEffectiveness(Cs& cs) //считывание эффективности КС
+//Считывание эффективности КС
+void InputCsEffectiveness(Cs& cs)
 {
 	do
 	{
@@ -194,7 +282,7 @@ void InputCs(Cs& cs) //запрос на обновление всех данн�
 	double check=0;
 	if (cs.CsWorkshop != 0)
 	{
-		cout << "Вы уверены что хотите перезаписать данные по компрессорной станции?" << endl << "Введите 1 для подтверждения операции" << endl;
+		cout << "Вы уверены, что хотите перезаписать данные по компрессорной станции?" << endl << "Введите 1 для подтверждения операции." << endl;
 		cin >> check;
 		if (check == 1)
 		{
@@ -220,6 +308,14 @@ void InputCs(Cs& cs) //запрос на обновление всех данн�
 		InputCsEffectiveness(cs);
 	}
 
+}
+//Проверка правильности структуры Кс (по смысловым критериям)
+bool CsInspection(const Cs& cs)
+{
+	if ((CheckingInt(cs.CsWorkshop) == false || cs.CsWorkshop <= 0) == 1 ||
+		(CheckingIntRange(cs.CsWorkingWorkshops, 0, cs.CsWorkshop) == false) == 1 ||
+		(CheckingIntRange(cs.CsEffectiveness, -100, 100) == false) == 1)
+		return 0;
 }
 
 //Информация по элементам
@@ -315,40 +411,101 @@ int item;
 void OutputInFile(const Pipe& p, const Cs& cs)
 {
 	ofstream fout;
-	fout.open("data.txt", ios::out);
-	if (fout.is_open())
+	cout << "Данное действие приведёт к перезаписи файла data.txt."<<endl
+		 << "Введите 1, чтобы продолжить, либо любое другое значение для отмены сохранения." << endl;
+	if (СonfirmationSaving())
 	{
-		fout << p.PipeLength << endl << p.PipeDia << endl << p.PipeStatus << endl;
-		fout << cs.CsName << endl << cs.CsWorkshop << endl << cs.CsWorkingWorkshops << endl << cs.CsEffectiveness << endl;
-		fout.close();
-		cout << "Данные сохранены." << endl;
-	}
-	else
-	{
-		cout << "Не удалось открыть файл.";
+		fout.open("data.txt", ios::out);
+		if (fout.is_open())
+		{
+			fout << p.PipeLength << endl << p.PipeDia << endl << p.PipeStatus << endl;
+			fout << cs.CsName << endl << cs.CsWorkshop << endl << cs.CsWorkingWorkshops << endl << cs.CsEffectiveness << endl;
+			fout.close();
+			cout << "Данные сохранены." << endl;
+		}
+		else
+		{
+			cout << "Не удалось открыть файл.";
+		}
 	}
 }
 
-//Считывание из файла
-void ReadingFromFile(Pipe& p, Cs& cs)
+//Проверка на ошибки интовых переменных при считывании
+void ReadingErrorInt(const string& check, int& cs)
 {
-	ifstream fin;
-	fin.open("data.txt", ios::in);
-	if (fin.is_open())
+	if (StringInInt(check, cs))
 	{
-		fin >> p.PipeLength;
-		fin >> p.PipeDia;
-		fin >> p.PipeStatus;
-		fin >> cs.CsName;
-		fin >> cs.CsWorkshop;
-		fin >> cs.CsWorkingWorkshops;
-		fin >> cs.CsEffectiveness;
-		fin.close();
-		cout << "Данные считаны." << endl;
+		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения"<<endl;
+		return;
+	}
+}
+//Проверка на ошибки дабловых переменных при считывании
+void ReadingErrorDouble(string& check, double& p)
+{
+	if (StringInDouble(check, p))
+	{
+		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
+		return;
+	}
+}
+//Проверка на ошибки будевых переменных при считывании
+void ReadingErrorBool(const string& check, bool& p)
+{
+	if (StringInBool(check, p))
+	{
+		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
+		return;
+	}
+}
+//Присвоение  значений из файла активными переменным
+void AssigningValuesFromFile(const Pipe& p1, const Cs& cs1, Pipe& p, Cs& cs)
+{
+	if (CsInspection(cs1) == 0 || PipeInspection(p1) == 0)
+	{
+		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
+		return;
 	}
 	else
 	{
-		cout << "Не удалось открыть файл.";
+		cout << "Данные считаны." << endl;
+		cs = cs1;
+		p = p1;
+	}
+}
+//Считывание из файла
+void ReadingFromFile(Pipe& p, Cs& cs)
+{
+	cout << "Данное действие приведёт к перезаписи введёных данных (если они есть). Убедитесь, что они вам не нужны." << endl
+		<< "Введите 1, чтобы продолжить, либо любое другое значение для отмены загрузки." << endl;
+	if (СonfirmationSaving())
+	{
+		ifstream fin;
+		string check;
+		Pipe p1 = {};
+		Cs cs1 = {};
+		fin.open("data.txt", ios::in);
+		if (fin.is_open())
+		{
+			fin >> check;
+			ReadingErrorDouble(check, p1.PipeLength);
+			fin >> check;
+			ReadingErrorDouble(check, p1.PipeDia);
+			fin >> check;
+			ReadingErrorBool(check, p1.PipeStatus);
+			fin >> cs1.CsName;
+			fin >> check;
+			ReadingErrorInt(check, cs1.CsWorkshop);
+			fin >> check;
+			ReadingErrorInt(check, cs1.CsWorkingWorkshops);
+			fin >> check;
+			ReadingErrorInt(check, cs1.CsEffectiveness);
+			fin.close();
+			AssigningValuesFromFile(p1, cs1, p, cs);
+		}
+		else
+		{
+			cout << "Не удалось открыть файл.";
+		}
 	}
 }
 
@@ -360,7 +517,7 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функционально
 	{
 		cin >> item;
 	} while (CheckingIntRange(item, 0, 7) == false);
-	
+
 	switch (item)
 	{
 	case 1:
@@ -379,7 +536,7 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функционально
 		}
 		else
 		{
-			cout << "Данные не возможно отредактировать. Сначала необходимо создать трубу." << endl;
+			cout << "Данные невозможно отредактировать. Сначала необходимо создать трубу." << endl;
 			_getch();
 		}
 		break;
@@ -390,7 +547,7 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функционально
 		}
 		else
 		{
-			cout << "Данные не возможно отредактировать. Сначала необходимо создать компрессорную станцию." << endl;
+			cout << "Данные невозможно отредактировать. Сначала необходимо создать компрессорную станцию." << endl;
 			_getch();
 		}
 		break;
@@ -401,12 +558,21 @@ int MainSharedConsole(Pipe& p, Cs& cs) //скилет функционально
 		ReadingFromFile(p, cs);
 		break;
 	case 0:
+		if ((p.PipeLength != 0) || (cs.CsWorkshop != 0))
+		{
+			cout << endl << "Вы хотите сохранить текущее состояние?" <<
+				endl << "Введите 1 для сохранения или любое другое значение, для выхода из программы." << endl;
+			if (СonfirmationSaving() == 1)
+				OutputInFile(p, cs);
+			else
+				return 0;
+		}
 		return 0;
 		break;
 	}
 }
-
-void SharedConsole() //главная консоль
+//Главная консоль
+void SharedConsole()
 {
 	Pipe p = {};
 	Cs cs = {};
@@ -420,12 +586,12 @@ void SharedConsole() //главная консоль
 }
 
 
-
-int main() //точка входа в программу
+//Точка входа в программу
+int main() 
 {
 	setlocale(LC_ALL, "rus");
+	
 	SharedConsole();
 
 	return 0;
 }
-
