@@ -242,7 +242,8 @@ bool PipeInspection(const Pipe& p)
 void InputCsName(Cs& cs)
 {
 	cout << "Введите название компрессорной станции (на латинском языке):" << endl;
-	cin >> cs.CsName;
+	cin.ignore();
+	getline(cin,cs.CsName);
 }
 //Считывание количества цехов КС
 void InputCsWorkshop(Cs& cs) 
@@ -431,30 +432,30 @@ void OutputInFile(const Pipe& p, const Cs& cs)
 }
 
 //Проверка на ошибки интовых переменных при считывании
-void ReadingErrorInt(const string& check, int& cs)
+bool ReadingErrorInt(const string& check, int& cs)
 {
 	if (StringInInt(check, cs))
 	{
 		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения"<<endl;
-		return;
+		return 0;
 	}
 }
 //Проверка на ошибки дабловых переменных при считывании
-void ReadingErrorDouble(string& check, double& p)
+bool ReadingErrorDouble(string& check, double& p)
 {
 	if (StringInDouble(check, p))
 	{
 		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
-		return;
+		return 0;
 	}
 }
 //Проверка на ошибки будевых переменных при считывании
-void ReadingErrorBool(const string& check, bool& p)
+bool ReadingErrorBool(const string& check, bool& p)
 {
 	if (StringInBool(check, p))
 	{
 		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
-		return;
+		return 0;
 	}
 }
 //Присвоение  значений из файла активными переменным
@@ -483,6 +484,7 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 		string check;
 		Pipe p1 = {};
 		Cs cs1 = {};
+
 		fin.open("data.txt", ios::in);
 		if (fin.is_open())
 		{
