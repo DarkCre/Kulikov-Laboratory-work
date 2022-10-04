@@ -20,7 +20,6 @@ struct Cs //создание структуры компрессорной ст�
 	int CsEffectiveness; //эффективность КС
 };
 
-
 //Проверка ввода разных типов данных
 //Проверка на правильность ввода положительных переменных типа double
 bool CheckingPositiveDouble(const double& Double) 
@@ -79,13 +78,13 @@ bool CheckingInt(const int& Int)
 //https://www.techiedelight.com/ru/convert-string-to-int-cpp/   https://www.bestprog.net/ru/2018/04/26/working-with-strings-the-string-class-class-constructors-the-functions-assign-append-insert-replace-erase-find-rfind-compare-c_str-examples_ru/
 bool ErrorStringInInt(const string& String, int& Int)
 {
-	if ((String.find_first_not_of("-0123456789") == std::string::npos) == 1)
+	if ((String.find_first_not_of("-0123456789") == string::npos) == 1)
 	{
 		try {
-			Int = std::stoi(String);
+			Int = stoi(String);
 			return 0;
 		}
-		catch (std::invalid_argument e) {
+		catch (invalid_argument e) {
 			return 1;
 		}
 	}
@@ -97,7 +96,7 @@ bool ErrorStringInInt(const string& String, int& Int)
 //Проверка предпологаемой дабловой строки на ошибки (с добавлением моих правок)
 bool ErrorStringInDouble(string& String, double& Double)
 {
-	if ((String.find_first_not_of("-.0123456789") == std::string::npos) == 1)
+	if ((String.find_first_not_of("-.0123456789") == string::npos) == 1)
 	{
 		size_t found = String.find(".");
 		size_t found2 = String.find(".", found + 1);
@@ -112,7 +111,7 @@ bool ErrorStringInDouble(string& String, double& Double)
 			Double = stod(String); https://www.geeksforgeeks.org/stdstod-stdstof-stdstold-c/ // ммм запятую превращает в точку, а в случае с точкой отбрасывает дробную часть. Что не так с этим миром...
 			return 0;
 			}
-			catch (std::invalid_argument e) 
+			catch (invalid_argument e) 
 			{
 				return 1;
 			}
@@ -124,7 +123,7 @@ bool ErrorStringInDouble(string& String, double& Double)
 //Проверка предпологаемой будевой строки на ошибки (с добавлением моих правок)
 bool ErrorStringInBool(const string& String, bool& Bool)
 {
-	if ((String.find_first_not_of("01") == std::string::npos) == 1 && String.length() == 1)
+	if ((String.find_first_not_of("01") == string::npos) == 1 && String.length() == 1)
 	{
 		if (String[0] == '1')
 		{
@@ -191,7 +190,6 @@ void InputPipeParameters(Pipe& p)
 //Ввод трубы
 void InputPipe(Pipe& p) //запрос на обновление всех данных по трубе и последовательность их ввода 
 {
-	double check=0;
 	if (p.PipeLength != 0)
 	{
 		cout << "Вы уверены, что хотите перезаписать данные по трубе?" << endl
@@ -316,20 +314,27 @@ bool FunctionalPartEditingCs(const int& CsWorkshop, int& CsWorkingWorkshops, con
 	int check2;
 	check1 = CsWorkingWorkshops + 1;
 	check2 = CsWorkingWorkshops - 1;
-	if (item == 0) { return 1; }
-	else if (check1 > CsWorkshop && item==1) { cout << "Невозможно запустить в работу больше цехов, чем существует. Пожалуйста, повторите попытку ввода." << endl; return 0;}
-	else if (item == 1)
+
+	switch (item)
 	{
-		CsWorkingWorkshops++;
-		cout << endl << "Данные сохранены." << endl;
+	case 1:
+		if (check1 > CsWorkshop) { cout << "Невозможно запустить в работу больше цехов, чем существует. Пожалуйста, повторите попытку ввода." << endl; return 0; }
+		else
+		{
+			CsWorkingWorkshops++;
+			cout << endl << "Данные сохранены." << endl;
+			return 1;
+		}
+	case 0:
 		return 1;
-	}
-	else if (check2 < 0 && item == -1) { cout << "Невозможно уменьшить количество работающих цехов, т.к. все цехи на данный момент остановлены." << endl; return 0;}
-	else if (item == -1)
-	{
-		CsWorkingWorkshops--;
-		cout << endl << "Данные сохранены." << endl;
-		return 1;
+	case -1:
+		if (check2 < 0) { cout << "Невозможно уменьшить количество работающих цехов, т.к. все цехи на данный момент остановлены." << endl; return 0; }
+		else
+		{
+			CsWorkingWorkshops--;
+			cout << endl << "Данные сохранены." << endl;
+			return 1;
+		}
 	}
 }
 //Редактирование Кс (Текст и ввод)
@@ -362,12 +367,12 @@ void EditingCs(const int& CsWorkshop, int& CsWorkingWorkshops) //диалого�
 //Вывод в файл
 void OutputInFile(const Pipe& p, const Cs& cs)
 {
-	ofstream fout;
 	cout << "6.Сохранение в файл." << endl 
 		 << "Данное действие приведёт к перезаписи файла data.txt."<<endl
 		 << "Введите 1, чтобы продолжить, либо любое другое значение для отмены сохранения." << endl;
 	if (СonfirmationSaving())
 	{
+		ofstream fout;
 		fout.open("data.txt", ios::out);
 		if (fout.is_open())
 		{
@@ -383,14 +388,19 @@ void OutputInFile(const Pipe& p, const Cs& cs)
 //Присвоение  значений из файла активными переменным
 void AssigningValuesFromFile(const Pipe& p1, const Cs& cs1, Pipe& p, Cs& cs)
 {
-	if (CsInspection(cs1) == 0 || PipeInspection(p1) == 0)
-	{ cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;}
+	if (CsInspection(cs1) == 0 || PipeInspection(p1) == 0) { OutputReadingError();}
 	else
 	{
 		cout << "Данные считаны." << endl;
 		cs = cs1;
 		p = p1;
 	}
+}
+
+//Вывод ошибки считывания файла
+void OutputReadingError()
+{
+	cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
 }
 //Считывание из файла
 void ReadingFromFile(Pipe& p, Cs& cs)
@@ -409,19 +419,19 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 		if (fin.is_open())
 		{
 			fin >> check;
-			if (ErrorStringInDouble(check, p1.PipeLength) == 1) { cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl; return;}
+			if (ErrorStringInDouble(check, p1.PipeLength) == 1) { OutputReadingError(); return; }
 			fin >> check;
-			if (ErrorStringInDouble(check, p1.PipeDia) == 1) { cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl; return; }
+			if (ErrorStringInDouble(check, p1.PipeDia) == 1) { OutputReadingError(); return; }
 			fin >> check;
-			if (ErrorStringInBool(check, p1.PipeStatus) == 1) { cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl; return; }
+			if (ErrorStringInBool(check, p1.PipeStatus) == 1) { OutputReadingError(); return; }
 			fin.ignore();
 			getline(fin, cs1.CsName);
 			fin >> check;
-			if (ErrorStringInInt(check, cs1.CsWorkshop) == 1) { cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl; return; }
+			if (ErrorStringInInt(check, cs1.CsWorkshop) == 1) { OutputReadingError(); return; }
 			fin >> check;
-			if (ErrorStringInInt(check, cs1.CsWorkingWorkshops) == 1) { cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl; return; }
+			if (ErrorStringInInt(check, cs1.CsWorkingWorkshops) == 1) { OutputReadingError(); return; }
 			fin >> check;
-			if (ErrorStringInInt(check, cs1.CsEffectiveness) == 1) { cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl; return; }
+			if (ErrorStringInInt(check, cs1.CsEffectiveness) == 1) { OutputReadingError(); return; }
 			fin.close();
 			AssigningValuesFromFile(p1, cs1, p, cs);
 		}
@@ -430,7 +440,7 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 }
 
 //Главная консоль
-int MainSharedConsole(Pipe& p, Cs& cs) //скилет функциональной части консоли
+int MainSharedConsole(Pipe& p,Cs& cs) //скелет функциональной части консоли
 {
 	int item;
 	do { cin >> item;} while (CheckingIntRange(item, 0, 7) == false);
@@ -487,5 +497,5 @@ int main()
 	Pipe p = {};
 	Cs cs = {};
 	//Запуск консоли
-	do { cout << endl; TextSharedConsole(); } while (MainSharedConsole(p, cs) != 0); 
+	do { cout << endl; TextSharedConsole();} while (MainSharedConsole(p, cs) != 0);
 }
