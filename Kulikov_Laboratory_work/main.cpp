@@ -33,9 +33,9 @@ bool CheckingIntRange(const int& Int, const int& beginning,const int& end)
 		cin.clear();
 		cin.ignore(100000, '\n');
 		cout << "Указано некоректное число, пожалуйста, укажите целое число от " << beginning << " до " << end << endl << endl;
-		return 0;
+		return false;
 	}
-	return 1;
+	return true;
 }
 //Проверка на правильность ввода переменных типа int и положительный double
 template <typename T>
@@ -48,14 +48,14 @@ bool CheckingIntAndPositiveDouble(const T& Variable)
 		cin.ignore(1000, '\n');
 		if (check == "double") { cout << "Указаны некоректные данные. Пожалуйста, введите целое положительное число" << endl; }
 		else { cout << "Указаны некоректные данные, пожалуйста, повторите попытку" << endl; }
-		return 0;
+		return false;
 	}
 	else if (check == "double" && Variable <= 0)
 	{
 		cout << "Это значение не может быть отрицательным или равным 0, пожалуйста, повторите попытку." << endl;
-		return 0;
+		return false;
 	}
-	return 1;
+	return true;
 }
 //Ввод и проверка Int и положительной double из файла
 template <typename T>
@@ -66,30 +66,30 @@ bool ReadingFile_CheckingInt_Double(ifstream& fin, T& Variable)
 	{
 		fin.clear();
 		fin.ignore(1000, '\n');
-		return 1;
+		return true;
 	}
 }
 //Проверка будевой строки на ошибки
 bool ErrorStringInBool(const string& String, bool& Bool, const string& Meaning)
 {
-	if ((String.find_first_not_of("01") == string::npos) == 1 && String.length() == 1)
+	if ((String.find_first_not_of("01") == string::npos) == true && String.length() == 1)
 	{
 		if (String[0] == '1')
 		{
 			Bool = 1;
-			return 0;
+			return false;
 		}
 		else if (String[0] == '0')
 		{
 			Bool = 0;
-			return 0;
+			return false;
 		}
 	}
 	else
 	{
 		if (Meaning == "console") { cout<<"Указано некоректное число, пожалуйста, введите 0 или 1."<<endl; }
-		else if (Meaning == "file") { return 1; }
-		return 1;
+		else if (Meaning == "file") { return true; }
+		return true;
 	}
 }
 //Подтверждение действий
@@ -98,9 +98,9 @@ bool СonfirmationSaving()
 	double check = 0;
 	cin >> check;
 	if (check == 1.)
-		return 1;
+		return true;
 	else
-		return 0;
+		return false;
 }
 //Вывод ошибки считывания файла
 void OutputReadingError()
@@ -158,10 +158,10 @@ void InputPipe(unordered_map<int, Pipe>& MapP) //запрос на обновл�
 //Проверка правильности структуры Трубы (по смысловым критериям) ytn
 bool PipeInspection(const Pipe& p)
 {
-	if ((CheckingIntAndPositiveDouble(p.PipeLength) == false) == 1 ||
-		(CheckingIntAndPositiveDouble(p.PipeDia) == false) == 1 ||
+	if ((CheckingIntAndPositiveDouble(p.PipeLength) == false) == true ||
+		(CheckingIntAndPositiveDouble(p.PipeDia) == false) == true ||
 		(p.PipeStatus==(true || false)))
-	{ return 0;}
+	{ return false;}
 }
 
 //Ввод параметров Кс ytn
@@ -208,10 +208,10 @@ void InputCs(Cs& cs) //запрос на обновление всех данн�
 //Проверка правильности структуры Кс (по смысловым критериям) ytn
 bool CsInspection(const Cs& cs)
 {
-	if ((CheckingIntAndPositiveDouble(cs.CsWorkshop) == false || cs.CsWorkshop <= 0) == 1 ||
-		(CheckingIntRange(cs.CsWorkingWorkshops, 0, cs.CsWorkshop) == false) == 1 ||
-		(CheckingIntRange(cs.CsEffectiveness, -100, 100) == false) == 1)
-	{ return 0;}
+	if ((CheckingIntAndPositiveDouble(cs.CsWorkshop) == false || cs.CsWorkshop <= 0) == true ||
+		(CheckingIntRange(cs.CsWorkingWorkshops, 0, cs.CsWorkshop) == false) == true ||
+		(CheckingIntRange(cs.CsEffectiveness, -100, 100) == false) == true)
+	{ return false;}
 }
 
 //Вывод информации по элементам ytn
@@ -270,22 +270,22 @@ bool FunctionalPartEditingCs(const int& CsWorkshop, int& CsWorkingWorkshops, con
 	switch (item)
 	{
 	case 1:
-		if (check1 > CsWorkshop) { cout << "Невозможно запустить в работу больше цехов, чем существует. Пожалуйста, повторите попытку ввода." << endl; return 0; }
+		if (check1 > CsWorkshop) { cout << "Невозможно запустить в работу больше цехов, чем существует. Пожалуйста, повторите попытку ввода." << endl; return false; }
 		else
 		{
 			CsWorkingWorkshops++;
 			cout << endl << "Данные сохранены." << endl;
-			return 1;
+			return true;
 		}
 	case 0:
-		return 1;
+		return true;
 	case -1:
-		if (check2 < 0) { cout << "Невозможно уменьшить количество работающих цехов, т.к. все цехи на данный момент остановлены." << endl; return 0; }
+		if (check2 < 0) { cout << "Невозможно уменьшить количество работающих цехов, т.к. все цехи на данный момент остановлены." << endl; return false; }
 		else
 		{
 			CsWorkingWorkshops--;
 			cout << endl << "Данные сохранены." << endl;
-			return 1;
+			return true;
 		}
 	}
 }
@@ -340,7 +340,7 @@ void OutputInFile(const Pipe& p, const Cs& cs)
 //Присвоение  значений из файла активными переменным
 void AssigningValuesFromFile(const Pipe& p1, const Cs& cs1, Pipe& p, Cs& cs)
 {
-	if (CsInspection(cs1) == 0 || PipeInspection(p1) == 0) { OutputReadingError();}
+	if (CsInspection(cs1) == false || PipeInspection(p1) == false) { OutputReadingError();}
 	else
 	{
 		cout << "Данные считаны." << endl;
@@ -348,7 +348,6 @@ void AssigningValuesFromFile(const Pipe& p1, const Cs& cs1, Pipe& p, Cs& cs)
 		p = p1;
 	}
 }
-
 
 //Считывание из файла ytn
 void ReadingFromFile(Pipe& p, Cs& cs)
@@ -366,15 +365,15 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 		fin.open("data.txt", ios::in);
 		if (fin.is_open())
 		{
-			if (ReadingFile_CheckingInt_Double(fin, p1.PipeLength) == 1) { OutputReadingError(); return; }
-			if (ReadingFile_CheckingInt_Double(fin, p1.PipeDia) == 1) { OutputReadingError(); return; }
+			if (ReadingFile_CheckingInt_Double(fin, p1.PipeLength) == true) { OutputReadingError(); return; }
+			if (ReadingFile_CheckingInt_Double(fin, p1.PipeDia) == true) { OutputReadingError(); return; }
 			fin >> check;
-			if (ErrorStringInBool(check,p1.PipeStatus, "file") == 1) { OutputReadingError(); return; };
+			if (ErrorStringInBool(check,p1.PipeStatus, "file") == true) { OutputReadingError(); return; };
 			fin.ignore();
 			getline(fin, cs1.CsName);
-			if (ReadingFile_CheckingInt_Double(fin, cs1.CsWorkshop) == 1) { OutputReadingError(); return; }
-			if (ReadingFile_CheckingInt_Double(fin, cs1.CsWorkingWorkshops) == 1) { OutputReadingError(); return; }
-			if (ReadingFile_CheckingInt_Double(fin, cs1.CsEffectiveness) == 1) { OutputReadingError(); return; }
+			if (ReadingFile_CheckingInt_Double(fin, cs1.CsWorkshop) == true) { OutputReadingError(); return; }
+			if (ReadingFile_CheckingInt_Double(fin, cs1.CsWorkingWorkshops) == true) { OutputReadingError(); return; }
+			if (ReadingFile_CheckingInt_Double(fin, cs1.CsEffectiveness) == true) { OutputReadingError(); return; }
 			fin.close();
 			AssigningValuesFromFile(p1, cs1, p, cs);
 		}
@@ -385,6 +384,8 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 //Главная консоль
 int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs) //скелет функциональной части консоли
 {
+	cin.clear();
+	cin.ignore(1000, '\n');
 	int item;
 	do { cin >> item;} while (CheckingIntRange(item, 0, 7) == false);
 
@@ -393,42 +394,42 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs) //скел�
 		case 1:
 			system("cls");
 			InputPipe(MapP);
-			return 1;
+			return true;
 		case 2:
 			system("cls");
 			InputCs(cs);
-			return 1;
+			return true;
 		case 3:
 			system("cls");
 			InformationOutput(p, cs);
-			return 1;
+			return true;
 		case 4:
 			system("cls");
 			EditingPipe(p.PipeStatus, p.PipeLength);
-			return 1;
+			return true;
 		case 5:
 			system("cls");
 			EditingCs(cs.CsWorkshop, cs.CsWorkingWorkshops);
-			return 1;
+			return true;
 		case 6:
 			system("cls");
 			OutputInFile(p, cs);
-			return 1;
+			return true;
 		case 7:
 			system("cls");
 			ReadingFromFile(p, cs);
-			return 1;
+			return true;
 		case 0:
 			if ((p.PipeLength != 0) || (cs.CsWorkshop != 0))
 			{
 				cout << endl << "Вы хотите сохранить текущее состояние?" <<
 					endl << "Введите 1 для сохранения или любое другое значение, для выхода из программы." << endl;
-				if (СonfirmationSaving() == 1)
+				if (СonfirmationSaving() == true)
 					OutputInFile(p, cs);
 				else
-					return 0;
+					return false;
 			}
-			return 0;
+			return false;
 	}
 }
 
