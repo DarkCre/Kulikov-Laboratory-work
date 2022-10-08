@@ -52,29 +52,28 @@ struct Cs //создание структуры компрессорной ст�
 	}
 	//Ввод из файла и проверка Int и положительной double из файла
 	template <typename T>
-	bool ReadingFile_CheckingInt_Double(ifstream& fin, T& Variable)
+	bool ReadingFile_CheckingIntAndDouble(ifstream& fin, T& Variable)
 	{
 		fin >> Variable;
 		if (fin.fail() || fin.peek() != '\n')
 		{
 			fin.clear();
 			fin.ignore(1000, '\n');
-			return true;
+			return false;
 		}
 	}
 	//Проверка будевой строки на ошибки
-	bool ErrorStringInBool(const string& String, bool& Bool, const string& Meaning)
+	bool CheckingStringInBool(const string& String, bool& Bool, const string& Meaning)
 	{
 		if ((String.find_first_not_of("01") == string::npos) == true && String.length() == 1)
 		{
-			if (String[0] == '1') { Bool = 1; return false;}
-			else if (String[0] == '0') { Bool = 0; return false;}
+			if (String[0] == '1') { Bool = 1; return true;}
+			else if (String[0] == '0') { Bool = 0; return true;}
 		}
 		else
 		{
-			if (Meaning == "console") { cout<<"Указано некоректное число, пожалуйста, введите 0 или 1."<<endl; }
-			else if (Meaning == "file") { return true; }
-			return true;
+			if (Meaning == "console") { cout<<"Указано некоректное число, пожалуйста, введите 0 или 1."<<endl; return false;}
+			else if (Meaning == "file") { return false;}
 		}
 	}
 
@@ -98,7 +97,7 @@ bool СonfirmationSaving()
 		{
 			cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 			cin >> strBool;
-		} while (ErrorStringInBool(strBool, PipeStatus, "console") == true);
+		} while (CheckingStringInBool(strBool, PipeStatus, "console") == false);
 	}
 	//Проверка правильности структуры Трубы (по смысловым критериям) ytn
 	bool PipeInspection(const Pipe& p)
@@ -348,15 +347,15 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 		{
 			fin.open("data.txt", ios::in);
 			//считывание данных
-			if (ReadingFile_CheckingInt_Double(fin, p1.PipeLength) == true) { OutputReadingError(); return;}
-			if (ReadingFile_CheckingInt_Double(fin, p1.PipeDia) == true) { OutputReadingError(); return;}
+			if (ReadingFile_CheckingIntAndDouble(fin, p1.PipeLength) == false) { OutputReadingError(); return;}
+			if (ReadingFile_CheckingIntAndDouble(fin, p1.PipeDia) == false) { OutputReadingError(); return;}
 			fin >> check;
-			if (ErrorStringInBool(check, p1.PipeStatus, "file") == true) { OutputReadingError(); return;};
+			if (CheckingStringInBool(check, p1.PipeStatus, "file") == false) { OutputReadingError(); return;};
 			fin.ignore();
 			getline(fin, cs1.CsName);
-			if (ReadingFile_CheckingInt_Double(fin, cs1.CsWorkshop) == true) { OutputReadingError(); return;}
-			if (ReadingFile_CheckingInt_Double(fin, cs1.CsWorkingWorkshops) == true) { OutputReadingError(); return;}
-			if (ReadingFile_CheckingInt_Double(fin, cs1.CsEffectiveness) == true) { OutputReadingError(); return;}
+			if (ReadingFile_CheckingIntAndDouble(fin, cs1.CsWorkshop) == false) { OutputReadingError(); return;}
+			if (ReadingFile_CheckingIntAndDouble(fin, cs1.CsWorkingWorkshops) == false) { OutputReadingError(); return;}
+			if (ReadingFile_CheckingIntAndDouble(fin, cs1.CsEffectiveness) == false) { OutputReadingError(); return;}
 			fin.close();
 
 			AssigningValuesFromFile(p1, cs1, p, cs);
