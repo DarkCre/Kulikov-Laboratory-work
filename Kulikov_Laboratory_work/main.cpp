@@ -105,7 +105,7 @@ bool СonfirmationSaving()
 	{
 		if ((CheckingIntAndPositiveDouble(p.PipeLength) == false) == true ||
 			(CheckingIntAndPositiveDouble(p.PipeDia) == false) == true ||
-			(p.PipeStatus == (true || false)))
+			(p.PipeStatus != (true || false)))
 		{
 			return false;
 		}
