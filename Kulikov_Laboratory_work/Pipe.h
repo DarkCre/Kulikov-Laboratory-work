@@ -1,4 +1,7 @@
 #pragma once
+#include <unordered_map>
+#include <iostream>
+using namespace std;
 
 
 class Pipe
@@ -21,6 +24,6 @@ public:
 	int GetPipeID() const;
 
 	void InputPipeStatusCheck();
-	
+	static void IDreplacement(const unordered_map<int, Pipe>& MapP);
 };
 

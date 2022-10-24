@@ -1,5 +1,4 @@
 #include "Pipe.h"
-#include <iostream>
 #include "Checking.h"
 
 int Pipe::_PipeID = 0;
@@ -25,12 +24,12 @@ void  Pipe::Set()
 	{
 		cout << "Введите длину трубы (0.00):" << endl;
 		cin >> _PipeLength;
-	} while (!СheckingValues(_PipeLength, cin, 0.));
+	} while (!СheckingValues(_PipeLength, cin, 0.0001));
 	do//Считывание диаметра трубы
 	{
 		cout << "Введите диаметр трубы (0.00):" << endl;
 		cin >> _PipeDia;
-	} while (!СheckingValues(_PipeDia, cin, 0.));
+	} while (!СheckingValues(_PipeDia, cin, 0.0001));
 
 	cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 	_PipeStatus=EnteringCheckingBool();
@@ -60,9 +59,22 @@ bool Pipe::GetPipeStatus() const
 
 int Pipe::GetPipeID() const
 {
+
 	return _PipeID;
 }
 
+void Pipe::IDreplacement(const unordered_map<int, Pipe>& MapP)
+{
+	for (auto itr = MapP.begin(); itr != MapP.end(); ++itr)
+	{
+		int Max = 0;
+		if (itr->first > Max)
+		{
+			Max= itr->first;
+		}
+		_PipeID = Max;
+	}
+}
 Pipe::Pipe()
 {
 	_PipeLength = 0;

@@ -9,7 +9,7 @@ bool СheckingValues(const T& Variable, istream& in = cin, T beginning = numeric_
 	{
 		in.clear();
 		in.ignore(1000, '\n');
-		cout << "Указаны некоректные данные, пожалуйста, укажите число от " << beginning << " до " << end << endl << endl;
+		cout << "Указаны некоректные данные, пожалуйста, укажите число от " << beginning << " до " << end << endl;
 		return false;
 	}
 	return true;

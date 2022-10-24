@@ -6,6 +6,7 @@
 #include "Pipe.h"
 #include "Checking.h"
 #include "Cs.h"
+#include <unordered_set>
 
 //указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 using namespace std;
@@ -33,8 +34,8 @@ void OutputByStatus(const unordered_map<int, Pipe>& MapP)
 	}
 }
 
-//Вывод информации по элементам ytn
-void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //вывод информации по трубе и КС
+//Вывод информации по элементам
+void InformationOutput(const unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP, const Cs& cs) //вывод информации по трубе и КС
 {
 
 	cout<< "1. Вывести информацию по всем трубам" << endl
@@ -46,10 +47,17 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //в�
 		<< "7. Вывести информацию по всем объектам" << endl
 		<< "0. Для возврата в главное меню." << endl << endl;
 
-
+	int check;
+	int ID;
 	int item = -1;
 	do { cin >> item; } while (СheckingValues(item, cin, 0,7) == false);
 	
+	if ((item == (1, 2, 3)) && MapP.size() == 0)
+	{
+		cout << "Чтобы вывести информацию по трубам, необходимо создать хотя бы одну трубу.";
+		return;
+	}
+
 	switch (item)
 	{
 	case 1:
@@ -61,7 +69,40 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //в�
 		}
 		return;
 	case 2:
+		cout << "Введите через Enter ID искомых труб."<<endl<<"Для завершения ввода введите последнее ID повторно."<< endl;
 
+		do
+		{
+			cin >> ID;
+		} while (!СheckingValues(ID));
+		while (true)
+		{
+			do
+			{
+				cin >> check;
+			} while (!СheckingValues(ID));
+			SetP.emplace(ID);
+			if (check == ID)
+				break;
+			ID = check;
+		}
+		cout << endl;
+		for (auto itr = SetP.begin(); itr != SetP.end(); ++itr)
+		{
+			const auto i = MapP.find(*itr);
+			if (i == MapP.end()) 
+			{
+				cout << "Не найдено трубы с ID = " << (*itr)<<endl<<endl;
+
+			}
+			else
+			{
+				cout << "ID трубы: " << i->first;
+				i->second.Get();
+				cout << endl;
+			}
+
+		}
 		return;
 	case 3:
 		OutputByStatus(MapP);
@@ -94,7 +135,7 @@ void EditingPipe(Pipe& p) //редактирование трубы
 		cout << endl << "Данные сохранены." << endl;
 }
 
-//Редактирование Кс ytn
+//Редактирование Кс 
 void EditingCs(Cs& cs) //диалоговая часть редактирования КС
 {	
 	int item;
@@ -124,38 +165,71 @@ void EditingCs(Cs& cs) //диалоговая часть редактирова�
 	}
 }
 
-ostream& operator<<(ostream& os, const Pipe& p)
-{
-	os << p.GetPipeLength() << " " << p.GetPipeDia() << " " << p.GetPipeStatus();
-	return os;
-}
-
-bool ConfirmationFileOverwriting(ostream& fout)
-{
-	fout.seekp(0, ios::end);
-	int size = fout.tellp();
-	fout.seekp(0, ios::beg);// 0-Значение смещения относительно параметра.
-	if (size != 0)
+	//перегрузка оператора вывода 
+	ostream& operator<<(ostream& os, const Pipe& p)
 	{
-		cout << "Сохранение с таким названием уже существует! Вы хотите перезаписать его?" << endl
-			<< "Введите 1, чтобы продолжить, либо 0 для отмены." << endl;
+		os << p.GetPipeLength() << endl<< p.GetPipeDia() << endl << p.GetPipeStatus()<<endl;
+		return os;
+	}
 
-		if (!EnteringCheckingBool())
+	//Проверка на существование файла с подтверждением о перезаписи
+	bool ConfirmationFileOverwriting(ostream& fout)
+	{
+		fout.seekp(0, ios::end);
+		int size = fout.tellp();
+		fout.seekp(0, ios::beg);// 0-Значение смещения относительно параметра.
+		if (size != 0)
 		{
-			return false;
+			cout << "Сохранение с таким названием уже существует! Вы хотите перезаписать его?" << endl
+				<< "Введите 1, чтобы продолжить, либо 0 для отмены." << endl;
+
+			if (!EnteringCheckingBool())
+			{
+				return false;
+			}
 		}
 	}
-}
 
-void OutputInFilePipe(ostream& fout, const unordered_map<int, Pipe>& MapP)
-{
-	for (auto itr = MapP.begin(); itr != MapP.end(); ++itr)
+	//Вывод трубы и его ID в файл
+	void OutputInFilePipe(ostream& fout, const unordered_map<int, Pipe>& MapP)
 	{
-		fout << itr->first << itr->second << endl;
+		for (auto itr = MapP.begin(); itr != MapP.end(); ++itr)
+		{
+			fout << itr->first <<endl<< itr->second << endl;
+		}
 	}
-}
 
-//Вывод в файл ytn
+	//Выбор способа сохранения
+	void ChoosingSavingMethod(const unordered_map<int, Pipe>& MapP, const Cs& cs, ostream& fout)
+	{
+		int item;
+		do
+		{
+			cout << "Введите 1 - для сохранения только труб." << endl
+				<< "Введите 2 - для сохранения только КС." << endl
+				<< "Введите 3 - для сохранения текущего состояния (КС и трубы)." << endl;
+			cin >> item;
+		} while (СheckingValues(item, cin, 1, 3) == false);
+
+		switch (item)
+		{
+		case 1:
+			fout << MapP.size()<<" "<<0<< endl;
+			OutputInFilePipe(fout, MapP);
+			return;
+		case 2:
+			fout << 0 << " " << "KC.size()" << endl;
+			//OutputInFileKC
+			return;
+		case 3:
+			fout << MapP.size() << " "<< "KC.size()" << endl;
+			OutputInFilePipe(fout, MapP);
+			//OutputInFileKC
+			return;
+		}
+	}
+
+//Вывод в файл 
 void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 {
 	cout << "6.Сохранение в файл." << endl
@@ -164,49 +238,44 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 	cin >> way;
 	way.insert(0, "./saves/");
 
-		ofstream fout;
-		fout.exceptions(ofstream::badbit | ofstream::failbit);
-		//https://www.youtube.com/watch?v=jCW2wRoRi0U
+	ofstream fout;
+	fout.exceptions(ofstream::badbit | ofstream::failbit);
+	//https://www.youtube.com/watch?v=jCW2wRoRi0U
+	{
+		try
 		{
+			fout.open(way, ios::app);
+
+			if (!ConfirmationFileOverwriting(fout))
+			{
+				fout.close();
+				return;
+			}
+			fout.close();
 			try
 			{
-				fout.open(way, ios::app);
-
-				if (!ConfirmationFileOverwriting(fout))
-				{
-					fout.close();
-					return;
-				}
-				fout.close();
-				try
-				{
-					fout.open(way, ios::out);
-					fout << MapP.size() << endl;
-					OutputInFilePipe(fout, MapP);
-					//тут должна быть компресорка.
-
-				}
-				catch (const  ofstream::failure& ex)
-				{
-					cout << ex.what() << endl << ex.code() << endl << "Ошибка при открытии/создании файла" << endl;
-				}
-
-				
-
-				fout.close();
-				/*
-				fout << p.GetPipeLength() << endl << p.GetPipeDia() << endl << p.GetPipeStatus() << endl;
-				fout << cs.GetCsName() << endl << cs.GetCsWorkshop() << endl << cs.GetCsWorkingWorkshops() << endl << cs.GetCsEffectiveness() << endl;
-
-				fout.close();
-				cout << "Данные сохранены";
-				*/
+				fout.open(way, ios::out);
+				ChoosingSavingMethod(MapP, cs, fout);
 			}
 			catch (const  ofstream::failure& ex)
 			{
 				cout << ex.what() << endl << ex.code() << endl << "Ошибка при открытии/создании файла" << endl;
 			}
+
+			fout.close();
+			/*
+			fout << p.GetPipeLength() << endl << p.GetPipeDia() << endl << p.GetPipeStatus() << endl;
+			fout << cs.GetCsName() << endl << cs.GetCsWorkshop() << endl << cs.GetCsWorkingWorkshops() << endl << cs.GetCsEffectiveness() << endl;
+
+			fout.close();
+			cout << "Данные сохранены";
+			*/
 		}
+		catch (const  ofstream::failure& ex)
+		{
+			cout << ex.what() << endl << ex.code() << endl << "Ошибка при открытии/создании файла" << endl;
+		}
+	}
 }
 
 	//Вывод ошибки считывания файла
@@ -214,9 +283,63 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 	{
 		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
 	}
+	//Считывание информации про трубу из файла
+	bool ReadingInformationFile(ifstream& fin, unordered_map<int, Pipe>& MapP)
+	{
+		char check;
+		double PipeLength = 0;
+		double PipeDia = 0;
+		bool PipeStatus = 0;
+		int pipeID = 0;
+
+		fin >> pipeID;
+		if (!СheckingIfstream(fin, PipeLength, 0.)) 
+		{ 
+			cout<<"Для трубы c ID: "<<pipeID;
+			OutputReadingError();
+			return false;
+		}
+		if (!СheckingIfstream(fin, PipeDia, 0.)) 
+		{
+			cout << "Для трубы c ID: " << pipeID;
+			OutputReadingError();
+			return false;
+		}
+		fin >> check;
+		if (СheckingValues(check, fin, '0', '1'))
+		{
+			if (check == '1') { PipeStatus = true; }
+		}
+		else
+		{
+			cout << "Для трубы c ID: " << pipeID<<endl;
+			OutputReadingError();
+			return false;
+		}
+		Pipe p1;
+		p1.Set(PipeLength, PipeDia, PipeStatus);
+		if (MapP.find(pipeID) != MapP.end()) { OutputReadingError(); return false; }
+		MapP.emplace(pipeID, p1);
+		
+
+		return true;
+	}
+	//Считывание труб из файла
+	void ReadingPipesFromFile(ifstream& fin, unordered_map<int, Pipe>& MapP, int& NumberPipes)
+	{
+		unordered_map<int, Pipe> MapP1;
+		while (NumberPipes != 0)
+		{
+			if (!ReadingInformationFile(fin, MapP1))
+				return;
+			--NumberPipes;
+		}
+		Pipe::IDreplacement(MapP1);
+		MapP.swap(MapP1);
+	}
 
 //Считывание из файла ytn
-void ReadingFromFile(Pipe& p, Cs& cs)
+void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 {
 	cout << "7.Загрузка данных из файла." << endl 
 		 << "Данное действие приведёт к перезаписи введёных данных (если они есть). Убедитесь, что они вам не нужны." << endl
@@ -225,20 +348,22 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 	{
 		ifstream fin;
 		fin.exceptions(ifstream::badbit | ifstream::failbit);
-		char check;
-
-		double PipeLength = 0;
-		double PipeDia = 0;
-		bool PipeStatus = 0;
+		
+		int NumberPipes=0;
+		int NumberCS = 0;
 		string CsName = "No name";
 		int CsWorkshop = 0;
 		int CsWorkingWorkshops = 0;
 		int CsEffectiveness = 0;
 
+		cout << endl << "Введите имя файла в формате 'имя.txt'" << endl;
+		string way = "";
+		cin >> way;
+		way.insert(0, "./saves/");
+
 		try
 		{
-			fin.open("data.txt", ios::in);
-			/*
+			fin.open(way, ios::app);
 			fin.seekg(0, ios::end);
 			int size = fin.tellg();
 			fin.seekg(0, ios::beg);
@@ -247,25 +372,43 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 				cout << "Файл пуст!";
 				return;
 			}
+			fin >> NumberPipes;
+			fin >> NumberCS;
+
+			int item;
+			do
+			{
+				cout << "Введите 1 - для считывания только труб." << endl
+					 << "Введите 2 - для считывания только КС." << endl
+					 << "Введите 3 - для считывания сохранённого состояния (КС и трубы)." << endl;
+				cin >> item;
+			} while (СheckingValues(item, cin, 1, 3) == false);
+
+			switch (item)
+			{
+			case 1:
+				if (NumberPipes == 0) 
+				{
+					cout<<"В файле нет нужных структур данных!";
+					return;}
+				ReadingPipesFromFile(fin, MapP, NumberPipes);
+				return;
+			case 2:
+				
+				//KC
+				return;
+			case 3:
+				if (NumberPipes == 0) { OutputReadingError(); return; }
+				ReadingPipesFromFile(fin, MapP, NumberPipes);
+				//KC
+				return;
+			}
+			
+			/*
+			
 			*/
 			//считывание данных
-			cout << "Длина трубы:" << endl;
-			if (!СheckingIfstream(fin,PipeLength, 0.)) { OutputReadingError(); return; }
-			cout << "Считано." << endl;
-			cout << "Диаметр трубы:" << endl;
-			if (!СheckingIfstream(fin, PipeDia, 0.)) { OutputReadingError(); return; }
-			cout << "Считано." << endl;
-			cout << "Статус трубы:" << endl;
-			fin >> check;
-			if (СheckingValues(check, fin, '0', '1'))
-			{
-				if (check == '1') { PipeStatus = true;}
-			}
-			else
-			{
-				OutputReadingError(); return;
-			}
-			cout << "Считано." << endl;
+			/*
 			cout << "Название КС:" << endl;
 			fin>> ws;
 			getline(fin, CsName);
@@ -284,7 +427,7 @@ void ReadingFromFile(Pipe& p, Cs& cs)
 
 			cout << endl << "Данные считаны." << endl;
 			cs.Set(CsName, CsWorkshop, CsWorkingWorkshops, CsEffectiveness);
-			p.Set(PipeLength, PipeDia, PipeStatus);
+			*/
 		}
 		catch (const  ifstream::failure & ex)
 		{ 
@@ -316,7 +459,7 @@ void PauseAndClearing()
 }
 
 //Функциональная часть консоли
-int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs) 
+int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP,Pipe& p,Cs& cs)
 {
 	int item =-1;
 	do { cin >> item;} while (СheckingValues(item,cin, 0, 7) == false);
@@ -333,7 +476,7 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs)
 			PauseAndClearing();
 			return true;
 		case 3:
-			InformationOutput(MapP, cs);
+			InformationOutput(MapP, SetP,cs);
 			PauseAndClearing();
 			return true;
 		case 4:
@@ -349,7 +492,7 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs)
 			PauseAndClearing();
 			return true;
 		case 7:
-			ReadingFromFile(p, cs);
+			ReadingFromFile(MapP, cs);
 			PauseAndClearing();
 			return true;
 		case 0:
@@ -367,11 +510,11 @@ int main()
 {
 	setlocale(LC_ALL, "rus"); //Подключение руссофикатора
 	unordered_map<int, Pipe> MapP;
-	
+	unordered_set<int> SetP;
 	//MapP.swap(umap1); что меняем (на что меняем)
 	//Создание структур
 	Pipe p;
 	Cs cs = {};
 	//Запуск консоли
-	do { cout << endl; TextSharedConsole();} while (MainSharedConsole(MapP,p, cs) != 0);
+	do { cout << endl; TextSharedConsole();} while (MainSharedConsole(MapP,SetP,p, cs) != 0);
 }
