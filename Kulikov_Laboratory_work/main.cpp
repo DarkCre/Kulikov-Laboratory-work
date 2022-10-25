@@ -7,6 +7,7 @@
 #include "Checking.h"
 #include "Cs.h"
 #include <unordered_set>
+#include "main.h"
 
 //указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 using namespace std;
@@ -35,7 +36,7 @@ void OutputByStatus(const unordered_map<int, Pipe>& MapP)
 }
 
 //Вывод информации по элементам
-void InformationOutput(const unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP, const Cs& cs) //вывод информации по трубе и КС
+void InformationOutput(const unordered_map<int, Pipe>& MapP, unordered_set<int>& PipeIDs, const Cs& cs) //вывод информации по трубе и КС
 {
 
 	cout<< "1. Вывести информацию по всем трубам" << endl
@@ -81,13 +82,13 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, unordered_set<int>&
 			{
 				cin >> check;
 			} while (!СheckingValues(ID));
-			SetP.emplace(ID);
+			PipeIDs.emplace(ID);
 			if (check == ID)
 				break;
 			ID = check;
 		}
 		cout << endl;
-		for (auto itr = SetP.begin(); itr != SetP.end(); ++itr)
+		for (auto i: PipeIDs)
 		{
 			const auto i = MapP.find(*itr);
 			if (i == MapP.end()) 
@@ -283,6 +284,11 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 	{
 		cout << "Ошибка при чтении файла. В файле содержатся недопустимые значения" << endl;
 	}
+	bool TryInputPipe(Pipe& p)
+	{
+		return СheckingIfstream(fin,p.PipeLength, 0.);
+
+	}
 	//Считывание информации про трубу из файла
 	bool ReadingInformationFile(ifstream& fin, unordered_map<int, Pipe>& MapP)
 	{
@@ -293,6 +299,14 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 		int pipeID = 0;
 
 		fin >> pipeID;
+		Pipe p;
+		if (!TryInputPipe(p))
+		{
+			cout << "Для трубы c ID: " << pipeID;
+			OutputReadingError();
+		}
+
+
 		if (!СheckingIfstream(fin, PipeLength, 0.)) 
 		{ 
 			cout<<"Для трубы c ID: "<<pipeID;
@@ -363,15 +377,10 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 
 		try
 		{
-			fin.open(way, ios::app);
-			fin.seekg(0, ios::end);
-			int size = fin.tellg();
-			fin.seekg(0, ios::beg);
-			if (size == 0)
-			{
-				cout << "Файл пуст!";
-				return;
-			}
+			fin.open(way);
+				if (!fin)
+					return;
+
 			fin >> NumberPipes;
 			fin >> NumberCS;
 
@@ -390,7 +399,8 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 				if (NumberPipes == 0) 
 				{
 					cout<<"В файле нет нужных структур данных!";
-					return;}
+					return;
+				}
 				ReadingPipesFromFile(fin, MapP, NumberPipes);
 				return;
 			case 2:

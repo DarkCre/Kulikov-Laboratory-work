@@ -65,15 +65,15 @@ int Pipe::GetPipeID() const
 
 void Pipe::IDreplacement(const unordered_map<int, Pipe>& MapP)
 {
+	int Max = 0;
 	for (auto itr = MapP.begin(); itr != MapP.end(); ++itr)
 	{
-		int Max = 0;
 		if (itr->first > Max)
 		{
 			Max= itr->first;
 		}
-		_PipeID = Max;
 	}
+		_PipeID = Max;
 }
 Pipe::Pipe()
 {
