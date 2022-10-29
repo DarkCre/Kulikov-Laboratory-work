@@ -4,19 +4,21 @@
 
 int Pipe::_PipeID = 0;
 
-void Pipe::InputPipeStatusCheck()
+Pipe::Pipe()
 {
-	//Считывание статуса трубы
-	cout << "Введите статус трубы "<<_PipeName<<" (в ремонте - 0, в работоспособном состоянии - 1) : " << endl;
-	_PipeStatus = EnteringCheckingBool();
+	_PipeName = "NoName";
+	_PipeLength = 0;
+	_PipeDia = 0;
+	_PipeStatus = 0;
+	++_PipeID;
 }
 
 void Pipe::Set(string PipeName, double PipeLength, double PipeDia, bool PipeStatus)
 {
+	_PipeName = PipeName;
 	_PipeLength = PipeLength;
 	_PipeDia = PipeDia;
 	_PipeStatus = PipeStatus;
-	_PipeName = PipeName;
 }
 
 void  Pipe::Set()
@@ -39,14 +41,40 @@ void  Pipe::Set()
 		cout << "Введите диаметр трубы (0.00):" << endl;
 		cin >> _PipeDia;
 	} while (!СheckingValues(_PipeDia, cin, 0.0001));
-
+	
 	cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 	_PipeStatus=EnteringCheckingBool();
+
 }
 
 void Pipe::SetStatus(bool PipeStatus)
 {
 	_PipeStatus = PipeStatus;
+}
+
+string Pipe::GetName() const
+{
+	return _PipeName;
+};
+
+double Pipe::GetLength() const
+{
+	return _PipeLength;
+}
+
+double Pipe::GetDia() const
+{
+	return _PipeDia;
+}
+
+bool Pipe::GetStatus() const
+{
+	return _PipeStatus;
+}
+
+int Pipe::GetID()
+{
+	return _PipeID;
 }
 
 void Pipe::Get() const
@@ -57,38 +85,20 @@ void Pipe::Get() const
 		<< "Статус трубы: " << (_PipeStatus ? "В работе" : "В ремонте") << endl;
 }
 
-double Pipe::GetPipeLength() const
+void Pipe::InputStatusCheck()
 {
-	return _PipeLength;
+	//Считывание статуса трубы
+	cout << "Введите статус трубы " << _PipeName << " (в ремонте - 0, в работоспособном состоянии - 1) : " << endl;
+	_PipeStatus = EnteringCheckingBool();
 }
 
-double Pipe::GetPipeDia() const
-{
-	return _PipeDia;
-}
 
-bool Pipe::GetPipeStatus() const
-{
-	return _PipeStatus;
-}
-
-int Pipe::GetPipeID()
-{
-
-	return _PipeID;
-}
-
-string Pipe::GetPipeName() const
-{
-	return _PipeName;
-};
 
 void Pipe::IDreplacement(const unordered_map<int, Pipe>& MapP)
 {
 	int Max = 0;
 	for (auto itr = MapP.begin(); itr != MapP.end(); ++itr)
 	{
-		
 		if (itr->first > Max)
 		{
 			Max= itr->first;
@@ -96,15 +106,3 @@ void Pipe::IDreplacement(const unordered_map<int, Pipe>& MapP)
 	}
 	_PipeID = Max;
 }
-
-Pipe::Pipe()
-{
-	_PipeName = "NoName";
-	_PipeLength = 0;
-	_PipeDia = 0;
-	_PipeStatus = 0;
-	++_PipeID;
-}
-
-
-
