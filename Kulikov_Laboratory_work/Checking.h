@@ -22,4 +22,6 @@ bool ÑheckingIfstream(ifstream& fin, T& Variable, T beginning = numeric_limits<T
 	return ÑheckingValues(Variable, fin, beginning, end);
 }
 
+bool CheckingString(string S);
+
 bool EnteringCheckingBool();

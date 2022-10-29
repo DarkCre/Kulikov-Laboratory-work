@@ -10,20 +10,23 @@ private:
 	double _PipeLength; // Длина трубы
 	double _PipeDia;   //  Диаметр трубы
 	bool _PipeStatus; //   Статус трубы (в ремонте или нет)
+	string _PipeName;
 	static int _PipeID;
 public:
 	Pipe();
 
-	void Set(double PipeLength, double PipeDia, bool PipeStatus);
+	void Set(string PipeName, double PipeLength, double PipeDia, bool PipeStatus);
 	void Set();
 
 	double GetPipeLength() const;
 	double GetPipeDia() const;
 	bool GetPipeStatus() const;
+	string GetPipeName() const;
 	void Get() const;
-	int GetPipeID() const;
+	static int GetPipeID();
 
 	void InputPipeStatusCheck();
 	static void IDreplacement(const unordered_map<int, Pipe>& MapP);
+	friend ifstream& operator>>(ifstream& fin, Pipe& p);
 };
 

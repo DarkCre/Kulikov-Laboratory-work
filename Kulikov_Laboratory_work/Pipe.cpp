@@ -1,5 +1,6 @@
 #include "Pipe.h"
 #include "Checking.h"
+#include <string>
 
 int Pipe::_PipeID = 0;
 
@@ -10,16 +11,24 @@ void Pipe::InputPipeStatusCheck()
 	_PipeStatus = EnteringCheckingBool();
 }
 
-void Pipe::Set(double PipeLength, double PipeDia, bool PipeStatus)
+void Pipe::Set(string PipeName, double PipeLength, double PipeDia, bool PipeStatus)
 {
 	_PipeLength = PipeLength;
 	_PipeDia = PipeDia;
 	_PipeStatus = PipeStatus;
+	_PipeName = PipeName;
 }
 
 void  Pipe::Set()
 {
 	cout << "1.Создание трубы:" << endl << endl;
+
+	do//Считывание имени трубы
+	{
+		cout << "Введите название трубы (на латинском языке):" << endl;
+		cin >> ws;
+		getline(cin, _PipeName);
+	} while (!CheckingString(_PipeName));
 	do//Считывание длины трубы
 	{
 		cout << "Введите длину трубы (0.00):" << endl;
@@ -37,7 +46,8 @@ void  Pipe::Set()
 
 void Pipe::Get() const
 {
-	cout << endl << "Длина трубы: " << _PipeLength << endl
+	cout<<"Название трубы: "<<_PipeName<<endl
+		<< "Длина трубы: " << _PipeLength << endl
 		<< "Диаметр трубы: " << _PipeDia << endl
 		<< "Статус трубы: " << (_PipeStatus ? "В работе" : "В ремонте") << endl;
 }
@@ -57,26 +67,34 @@ bool Pipe::GetPipeStatus() const
 	return _PipeStatus;
 }
 
-int Pipe::GetPipeID() const
+int Pipe::GetPipeID()
 {
 
 	return _PipeID;
 }
 
+string Pipe::GetPipeName() const
+{
+	return _PipeName;
+};
+
 void Pipe::IDreplacement(const unordered_map<int, Pipe>& MapP)
 {
+	int Max = 0;
 	for (auto itr = MapP.begin(); itr != MapP.end(); ++itr)
 	{
-		int Max = 0;
+		
 		if (itr->first > Max)
 		{
 			Max= itr->first;
 		}
-		_PipeID = Max;
 	}
+	_PipeID = Max;
 }
+
 Pipe::Pipe()
 {
+	_PipeName = "NoName";
 	_PipeLength = 0;
 	_PipeDia = 0;
 	_PipeStatus = 0;
