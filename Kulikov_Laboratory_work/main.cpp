@@ -7,7 +7,6 @@
 #include "Checking.h"
 #include "Cs.h"
 #include <unordered_set>
-#include <map>
 
 //Указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
 using namespace std;
@@ -19,49 +18,54 @@ void PauseAndClearing()
 	system("cls");
 }
 
-//Закрытие файла и создание ошибки
+//Фильтр для проверки ошибок
 template<typename T>
-void FileClosureAndError(T& fin)
-{
-	fin.close();
-	fin.setstate(std::ios_base::failbit);
-}
+using FilterError = bool(*)(T& flow, int&);
 //Проверка на наличие элементов в массиве
-void CheckingPresenceElement(ofstream& fin, const unordered_map<int, Pipe>& MapP)
+template<typename T>
+bool CheckingPresenceElements(T& flow,int& size)
 {
-	if (MapP.size() == 0)
+	if (size == 0)
 	{
-		cout << "Для сохранения данных необходимо создать хотя бы один элемент!" << endl;
-		FileClosureAndError(fin);
+		cout << "Необходимо иметь хотя бы один элемент!" << endl;
+		return false;
 	}
+	return true;
 }
 //Проверка значения количества элементов
-void CheckingNumberElements(ifstream& fin, int& NumberPipes, int& NumberCS)
+bool CheckingNumberElements(ifstream& flow, int& Number)
 {
-	if (!СheckingIfstream(fin, NumberPipes, 0) || !СheckingIfstream(fin, NumberCS, 0))
+	if (!СheckingIfstream(flow, Number, 0))
 	{
 		cout << "Количество элементов не может быть меньше 0!" << endl;
-		FileClosureAndError(fin);
+		return false;
 	}
-}
-//Проверка на то, что считываемые элементы существуют
-void CheckingPresenceElements(ifstream& fin, const int& NumberElements)
-{
-	if (NumberElements == 0)
-	{
-		cout << "В файле нет нужных структур данных!" << endl;
-		FileClosureAndError(fin);
-	}
+	return true;
 }
 //Проверка на то, что ID больше 0
-void CheckID(ifstream& fin, int& PipeID)
+bool CheckID(ifstream& flow, int& PipeID)
 {
-	if (!СheckingIfstream(fin, PipeID, 1))
+	if (!СheckingIfstream(flow, PipeID, 1))
 	{
 		cout << "ID не может быть меньше 0!" << endl;
-		FileClosureAndError(fin);
+		return false;
+	}
+	return true;
+}
+
+//Закрытие в файла в случае неудачной проверки  на наличие элементов в файле
+template<typename T>
+void CheckingErrorsInFile(T& flow, FilterError<T> f,int& param)
+{
+	if (!f(flow, param))
+	{
+		flow.close();
+		flow.setstate(std::ios_base::failbit);
+		return;
 	}
 }
+
+/*
 //Проверка на существование ID
 bool CheckingAvailabilityID(int ID, const unordered_map<int, Pipe>& MapP)
 {
@@ -72,19 +76,10 @@ bool CheckingAvailabilityID(int ID, const unordered_map<int, Pipe>& MapP)
 	}
 	return true;
 }
-//Проверка на пустоту массива
-bool CheckEmptiness(const unordered_map<int, Pipe>& MapP)
-{
-	if (MapP.size() == 0)
-	{
-		cout << "Необходимо создать хотя бы одну трубу.";
-		return false;
-	}
-	return true;
-}
+*/
 
-//Ввод пункта свича и ID 
-int InputItemAndID(int beginning, int end)
+//Ввод Инта
+int IntInput(int beginning, int end)
 {
 	int item;
 	do
@@ -116,7 +111,7 @@ string EnteringFileName()
 	return way;
 }
 
-//Фильтр для проверки
+//Фильтр для поиска
 template<typename T>
 using Filter = bool(*)(const Pipe& P, T param);
 //Проверка подходит ли имя
@@ -139,10 +134,12 @@ void CreatingPipe(unordered_map<int, Pipe>& MapP)
 	MapP.emplace(p1.GetPipeID(), p1);
 }
 
+
 	//Перегрузка оператора на вывод всего Map
 	ostream& operator<<(ostream& os, const unordered_map<int, Pipe>& MapP)
 	{
-		if (!CheckEmptiness(MapP)) { return os;}
+		int SizePipes = MapP.size();
+		if (!CheckingPresenceElements(os,SizePipes)) { return os;}
 		for (const auto& elem : MapP)
 		{
 			cout << "ID трубы: " << elem.first<<endl;
@@ -151,49 +148,18 @@ void CreatingPipe(unordered_map<int, Pipe>& MapP)
 		}
 		return os;
 	}
-
-	//Вывод труб по статусу или имени.
-	template<typename T>
-	map<int, int> OutputByFilter(const unordered_map<int,Pipe>& MapP, Filter<T> f,T param)
-	{
-		map<int, int> IDs;
-		int count = 0;
-
-		for (const auto& elem : MapP)
-		{
-			if (f(elem.second,param))
-			{
-				++count;
-				cout << "Номер в списке: " << count<<endl;
-				cout << "ID трубы: " << elem.first<<endl;
-				elem.second.Get();
-				cout << endl;
-				IDs.emplace(count, elem.first);
-			}
-		}
-		if (count == 0)
-		{
-			cout << "Труб с таким названием не найдено!"<<endl;
-		}
-		return IDs;
-	}
-
 //Вывод информации по элементам
 void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //вывод информации по трубе и КС
 {
 	string Name = "NoName";
 	bool Status = false;
-
+	int SizePipes = MapP.size();
 	cout<< "1. Вывести информацию по всем трубам" << endl
-		<< "2. Поиск информации по перечню ID труб" << endl
-		<< "3. Поиск информации по статусу трубы" << endl
-		<< "4. Вывести информацию по всем КС" << endl
-		<< "5. Поиск информации по названию КС" << endl
-		<< "6. Поиск информации по проценту незадействованных цехов КС" << endl
-		<< "7. Вывести информацию по всем объектам" << endl
+		<< "2. Вывести информацию по всем КС" << endl
+		<< "3. Вывести информацию по всем объектам" << endl
 		<< "0. Для возврата в главное меню." << endl << endl;
 
-	int item = InputItemAndID(0, 7);
+	int item = IntInput(0, 7);
 
 	switch (item)
 	{
@@ -202,12 +168,131 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //в�
 		return;
 	case 2:
 
-		if (!CheckEmptiness(MapP)) { return; }
+		return;
+	case 3:
+
+		return;
+	case 0:
+		return;
+	}
+	return;
+	
+}
+
+
+void BatchEditingPipes(unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP)
+{
+	cout << "Введите новый статус трубы (в ремонте - 0, в работоспособном состоянии - 1)" << endl;
+	int Status = IntInput(0, 1);
+	for (const auto& elem : SetP)
+	{
+		MapP.at(elem).SetStatus(Status);
+	}
+}
+
+void BatchErasePipes(unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP)
+{
+	for (const auto& elem : SetP)
+	{
+		MapP.erase(elem);
+	}
+}
+
+template<typename T>
+void FilterResults(unordered_map<int, Pipe>& MapP, unordered_map<int, int>& IDs, Filter<T> f, T param)
+{
+	int count = 0;
+	for (const auto& elem : MapP)
+	{
+		if (f(elem.second, param))
+		{
+			++count;
+			cout << "Номер в списке: " << count << endl;
+			cout << "ID трубы: " << elem.first << endl;
+			elem.second.Get();
+			cout << endl;
+			IDs.emplace(count, elem.first);
+		}
+	}
+	if (count == 0)
+	{
+		cout << "Труб с таким названием не найдено!" << endl;
+		return;
+	}
+}
+
+void EnteringIDChange(unordered_map<int, int>& IDs, unordered_set<int>& SetP)
+{
+	int Number = 0;
+	cout << "Введите -1 для того, что бы выбрать все выведенные объекты" << endl
+		<< "Или введите через Enter номера из списка интересующих вас объектов." << endl
+		<< "Для завершения ввода введите 0" << endl;
+
+	Number = IntInput(-1, IDs.size());
+	while (Number != 0 && Number != -1)
+	{
+		SetP.emplace(IDs.at(Number));
+		Number = IntInput(0, IDs.size());
+	}
+	if (SetP.size() == 0) { return; }
+}
+
+	//Вывод труб по статусу или имени.
+	template<typename T>
+	void ChangingObjects( unordered_map<int, Pipe>& MapP, Filter<T> f, T param)
+	{
+		unordered_map<int, int> IDs;
+		FilterResults(MapP, IDs, f, param);
+		unordered_set<int> SetP;
+		EnteringIDChange(IDs, SetP);
+		
+
+		cout <<endl<< "Введите 1 для редактирования объектов или 0 для удаления."<<endl;
+		int item = IntInput(0, 1);
+		switch (item)
+		{
+		case 1:
+			BatchEditingPipes(MapP, SetP);
+			return;
+			/*
+			for (const auto& elem : SetP)
+			{
+				MapP.at(elem).InputPipeStatusCheck();
+			}
+			return;
+			*/
+		case 0:
+			BatchErasePipes(MapP, SetP);
+			return;
+		}
+
+	}	
+	//Изменение объектов
+void ChangingObjects(unordered_map<int, Pipe>& MapP, Cs& cs)
+{
+	string Name = "NoName";
+	bool Status = false;
+	int SizePipes = MapP.size();
+	cout<< "1. Редактирование по фильтру названия труб" << endl
+		<< "2. Редактирование по фильтру статуса трубы" << endl
+		<< "3. Редактирование по фильтру названия КС" << endl
+		<< "4. Редактирование по фильтру процента незадействованных цехов КС" << endl
+		<< "5. Редактирование по ID труб" << endl
+		<< "6. Редактирование по ID КС" << endl
+		<< "0. Для возврата в главное меню." << endl << endl;
+
+	int item = IntInput(0, 6);
+
+	switch (item)
+	{
+	case 1:
+
+		if (!CheckingPresenceElements(cout, SizePipes)) { return; }
 		cout << endl;
 
 		Name = EnteringFragmentName();
 
-		OutputByFilter(MapP, CheckByName, Name);
+		ChangingObjects(MapP, CheckByName, Name);
 		return;
 
 		/*
@@ -230,14 +315,17 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //в�
 				cout << endl;
 		}
 		*/
-	case 3:
-		if (!CheckEmptiness(MapP)) { return; }
+	case 2:
+		if (!CheckingPresenceElements(cout, SizePipes)) { return; }
 		cout << endl;
 
 		cout << "Введите 1, если статус искомых труб 'В работе' или 0, если их статус 'В ремонте'" << endl;
 		Status = EnteringCheckingBool();
 
-		OutputByFilter(MapP, CheckByNameStatus, Status);
+		ChangingObjects(MapP, CheckByNameStatus, Status);
+		return;
+	case 3:
+
 		return;
 	case 4:
 
@@ -248,15 +336,11 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const Cs& cs) //в�
 	case 6:
 
 		return;
-	case 7:
-
-		return;
 	case 0:
 		return;
 	}
 
 	return;
-	
 }
 
 //Редактирование трубы ytn
@@ -267,6 +351,7 @@ void EditingPipe(Pipe& p) //редактирование трубы
 		cout << endl << "Данные сохранены." << endl;
 }
 
+
 //Редактирование Кс 
 void EditingCs(Cs& cs) //диалоговая часть редактирования КС
 {	
@@ -276,7 +361,7 @@ void EditingCs(Cs& cs) //диалоговая часть редактирова�
 		<< "Введите 0 - для возврата в главное меню." << endl
 		<< "Введите -1 - для уменьшения количества работающих цехов на 1." << endl;
 
-	int item = InputItemAndID(-1, 1);
+	int item = IntInput(-1, 1);
 	switch (item)
 	{
 	case 1:
@@ -291,6 +376,7 @@ void EditingCs(Cs& cs) //диалоговая часть редактирова�
 		return;
 	}
 }
+
 
 	//Перегрузка оператора вывода 
 	ofstream& operator<<(ofstream& os, const Pipe& p)
@@ -328,17 +414,17 @@ void EditingCs(Cs& cs) //диалоговая часть редактирова�
 	//Выбор способа сохранения
 	void ChoosingSavingMethod(const unordered_map<int, Pipe>& MapP, const Cs& cs, ofstream& fout)
 	{
+		int SizePipes = MapP.size();
+		CheckingErrorsInFile(fout, CheckingPresenceElements, SizePipes);
 		cout << "Введите 1 - для сохранения только труб." << endl
 			<< "Введите 2 - для сохранения только КС." << endl
 			<< "Введите 3 - для сохранения текущего состояния (КС и трубы)." << endl;
-
-		int item = InputItemAndID(1, 3);
+		int item = IntInput(1, 3);
 
 		switch (item)
 		{
 		case 1:
-			CheckingPresenceElement(fout, MapP);
-			fout << MapP.size()<<endl<<0<< endl;
+			fout << SizePipes <<endl<<0<< endl;
 			OutputInFilePipe(fout, MapP);
 			return;
 		case 2:
@@ -355,7 +441,7 @@ void EditingCs(Cs& cs) //диалоговая часть редактирова�
 //Вывод в файл 
 void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 {
-	cout << "6.Сохранение в файл." << endl
+	cout << "5.Сохранение в файл." << endl
 		 <<endl<<"Введите имя файла"<<endl;
 	string way = EnteringFileName();
 
@@ -392,6 +478,7 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 	
 }
 
+
 	//Перегрузка ifstream на считывание трубы из файла с проверкой
 	ifstream& operator>>(ifstream& fin, Pipe& p)
 	{
@@ -420,7 +507,7 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 	bool ReadingInformationFile(ifstream& fin, unordered_map<int, Pipe>& MapP)
 	{
 		int PipeID = 0;
-		CheckID(fin, PipeID);
+		CheckingErrorsInFile(fin, CheckID, PipeID);
 		Pipe p1;
 		fin >> p1;
 		if ((MapP.find(PipeID) != MapP.end()) || fin.bad())
@@ -449,7 +536,7 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const Cs& cs)
 //Считывание из файла ytn
 void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 {
-	cout << "7.Загрузка данных из файла." << endl 
+	cout << "6.Загрузка данных из файла." << endl 
 		 << "Данное действие приведёт к перезаписи введёных данных (если они есть). Убедитесь, что они вам не нужны." << endl
 		 << "Введите 1, чтобы продолжить, либо 0 для отмены загрузки." << endl;
 	if (EnteringCheckingBool())
@@ -469,19 +556,18 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 		try
 		{
 			fin.open(way, ios::in);
-
-			CheckingNumberElements(fin, NumberPipes, NumberCS);
-
+			CheckingErrorsInFile(fin, CheckingNumberElements, NumberPipes);
+			CheckingErrorsInFile(fin, CheckingNumberElements, NumberCS);
 			cout << "Введите 1 - для считывания только труб." << endl
 				<< "Введите 2 - для считывания только КС." << endl
 				<< "Введите 3 - для считывания сохранённого состояния (КС и трубы)." << endl;
 
-			int item = InputItemAndID(1, 3);
+			int item = IntInput(1, 3);
 
 			switch (item)
 			{
 			case 1:
-				CheckingPresenceElements(fin, NumberPipes);
+				CheckingErrorsInFile(fin, CheckingPresenceElements, NumberPipes);
 				ReadingPipesFromFile(fin, MapP, NumberPipes);
 				return;
 			case 2:
@@ -489,7 +575,7 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 				//KC
 				return;
 			case 3:
-				CheckingPresenceElements(fin, NumberPipes);
+				CheckingErrorsInFile(fin, CheckingPresenceElements, NumberPipes);
 				ReadingPipesFromFile(fin, MapP, NumberPipes);
 				//KC
 				return;
@@ -527,6 +613,7 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, Cs& cs)
 	}
 }
 
+
 //Главная консоль
 //Текст главной консоли
 void TextSharedConsole() //текстовая часть консоли
@@ -535,17 +622,16 @@ void TextSharedConsole() //текстовая часть консоли
 			<< "1. Добавить трубу" << endl
 			<< "2. Добавить КС" << endl
 			<< "3. Просмотр всех объектов" << endl
-			<< "4. Редактировать трубу" << endl
-			<< "5. Редактировать КС" << endl
-			<< "6. Сохранить" << endl
-			<< "7. Загрузить" << endl
+			<< "4. Изменение объектов" << endl
+			<< "5. Сохранить" << endl
+			<< "6. Загрузить" << endl
 			<< "0. Выход" << endl << endl;
 	}
 
 //Функциональная часть консоли
-int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs)
+int MainSharedConsole(unordered_map<int, Pipe>& MapP,Cs& cs)
 {
-	int item = InputItemAndID(0, 7);
+	int item = IntInput(0, 6);
 
 	switch (item)
 	{
@@ -559,21 +645,23 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP,Pipe& p,Cs& cs)
 			return true;
 		case 3:
 			InformationOutput(MapP,cs);
-			PauseAndClearing();
 			return true;
 		case 4:
+			ChangingObjects(MapP, cs);
+			PauseAndClearing();
+			/*
 			EditingPipe(p);
 			PauseAndClearing();
 			return true;
-		case 5:
 			EditingCs(cs);
 			PauseAndClearing();
+			*/
 			return true;
-		case 6:
+		case 5:
 			OutputInFile(MapP, cs);
 			PauseAndClearing();
 			return true;
-		case 7:
+		case 6:
 			ReadingFromFile(MapP, cs);
 			PauseAndClearing();
 			return true;
@@ -592,10 +680,8 @@ int main()
 {
 	setlocale(LC_ALL, "rus"); //Подключение руссофикатора
 	unordered_map<int, Pipe> MapP;
-	//MapP.swap(umap1); что меняем (на что меняем)
 	//Создание структур
-	Pipe p;
 	Cs cs = {};
 	//Запуск консоли
-	do { cout << endl; TextSharedConsole();} while (MainSharedConsole(MapP,p, cs) != 0);
+	do { cout << endl; TextSharedConsole();} while (MainSharedConsole(MapP,cs) != 0);
 }

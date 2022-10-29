@@ -17,7 +17,7 @@ public:
 
 	void Set(string PipeName, double PipeLength, double PipeDia, bool PipeStatus);
 	void Set();
-
+	void SetStatus(bool PipeStatus);
 	double GetPipeLength() const;
 	double GetPipeDia() const;
 	bool GetPipeStatus() const;

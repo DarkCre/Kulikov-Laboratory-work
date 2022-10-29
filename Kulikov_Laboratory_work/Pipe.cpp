@@ -7,7 +7,7 @@ int Pipe::_PipeID = 0;
 void Pipe::InputPipeStatusCheck()
 {
 	//Считывание статуса трубы
-	cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
+	cout << "Введите статус трубы "<<_PipeName<<" (в ремонте - 0, в работоспособном состоянии - 1) : " << endl;
 	_PipeStatus = EnteringCheckingBool();
 }
 
@@ -42,6 +42,11 @@ void  Pipe::Set()
 
 	cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 	_PipeStatus=EnteringCheckingBool();
+}
+
+void Pipe::SetStatus(bool PipeStatus)
+{
+	_PipeStatus = PipeStatus;
 }
 
 void Pipe::Get() const
@@ -100,4 +105,6 @@ Pipe::Pipe()
 	_PipeStatus = 0;
 	++_PipeID;
 }
+
+
 
