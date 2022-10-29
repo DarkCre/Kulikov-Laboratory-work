@@ -18,6 +18,7 @@ void PauseAndClearing()
 	system("cls");
 }
 
+
 //Фильтр для проверки ошибок
 template<typename T>
 using FilterError = bool(*)(T& flow, int&);
@@ -110,20 +111,29 @@ string EnteringFileName()
 }
 
 //Фильтр для поиска
-template<typename T1,typename T2>
-using Filter = bool(*)(const T1& P, T2 param);
+template<typename T,typename T1>
+using Filter = bool(*)(const T1& , T param);
 //Проверка подходит ли имя
 template<typename T>
-bool CheckByName(const T& P, string param)
+bool CheckByName(const T& Obj, string param)
 {
-	return  (P.GetName().find(param) != string::npos);
+	return  (Obj.GetName().find(param) != string::npos);
 }
+
+//Проверка по эффективности
+bool CheckByEffectiveness(const Cs& Cs, double param)
+{
+	double Workshop = Cs.GetWorkshop();
+	double WorkingWorkshops = Cs.GetWorkingWorkshops();
+	double Effectiveness = param / 100;
+	return((1 - WorkingWorkshops / Workshop) >= Effectiveness);
+}
+
 //Проверка подходит ли статус
-bool CheckByNameStatus(const Pipe& P, bool param)
+bool CheckByStatus(const Pipe& P, bool param)
 {
 	return(P.GetStatus() == param);
 }
-
 
 //Создание новой трубы
 template<typename T>
@@ -135,7 +145,7 @@ void CreatingObject(unordered_map<int, T>& Obj)
 }
 
 	template<typename T>
-	void ChangingObjectsCs(unordered_map<int, Cs>& MapCs, Filter<Cs,T> f, T param)
+	void ChangingObjectsCs(unordered_map<int, Cs>& MapCs, Filter<T,Cs> f, T param)
 	{
 		unordered_map<int, int> IDs;
 		FilterResults(MapCs, IDs, f, param);
@@ -155,11 +165,12 @@ void CreatingObject(unordered_map<int, T>& Obj)
 		return os;
 	}
 //Вывод информации по элементам
-void InformationOutput(const unordered_map<int, Pipe>& MapP, const unordered_map<int, Cs>& MapCs) //вывод информации по трубе и КС
+void InformationOutput(const unordered_map<int, Pipe>& MapP,  unordered_map<int, Cs>& MapCs) //вывод информации по трубе и КС
 {
 	string Name = "NoName";
+	double Effectiveness = 0;
 	bool Status = false;
-	int SizePipes = MapP.size();
+	int SizeCs = MapCs.size();
 	cout<< "1. Вывести информацию по всем трубам" << endl
 		<< "2. Вывести информацию по всем КС" << endl
 		<< "3. Вывести информацию по всем объектам" << endl
@@ -182,14 +193,25 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const unordered_map
 		cout << "Компрессорные станции: " << endl << MapCs;
 		return;
 	case 4:
-		if (!CheckingPresenceElements(cout, SizePipes)) { return; }
+		if (!CheckingPresenceElements(cout,SizeCs)) { return; }
 
 		cout << endl;
 		Name = EnteringFragmentName();
 
 		ChangingObjectsCs(MapCs, CheckByName, Name);
 		return;
+
 	case 5:
+		if (!CheckingPresenceElements(cout, SizeCs)) { return; }
+
+		do
+		{
+			cout << "Введите процент незадействованных цехов (от 0 до 100): " << endl;
+			cin >> Effectiveness;
+		} while (!СheckingValues(Effectiveness, cin, 0., 100.));
+
+		ChangingObjectsCs(MapCs, CheckByEffectiveness, Effectiveness);
+		return;
 
 		return;
 	case 0:
@@ -200,7 +222,7 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const unordered_map
 }
 	
 //Изменение объектов	
-			template<typename T>
+template<typename T>
 			using FilterEditing = void(*)(T&, unordered_set<int>&);
 			//Поэлементное редактирование списка труб
 			void Element_By_ElementEditingPipe(unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP)
@@ -282,8 +304,8 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const unordered_map
 			if (Number == -1) { SelectingAllFilterElements(IDs, SetP); }
 		}
 		//Результаты фильтрации
-		template<typename T1, typename T2>
-		void FilterResults(T1& Obj, unordered_map<int, int>& IDs, Filter<T2> f, T2 param)
+		template<typename T,typename T1>
+		void FilterResults(unordered_map<int, T1>& Obj, unordered_map<int, int>& IDs, Filter<T,T1> f, T param)
 		{
 			int count = 0;
 			for (const auto& elem : Obj)
@@ -300,7 +322,7 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const unordered_map
 			}
 			if (count == 0)
 			{
-				cout << "Труб с таким названием не найдено!" << endl;
+				cout << "Искомых объектов не найдено!" << endl;
 				return;
 			}
 		}
@@ -336,7 +358,7 @@ void InformationOutput(const unordered_map<int, Pipe>& MapP, const unordered_map
 
 	//Изменение объектов
 	template<typename T>
-	void ChangingObjectsPipe( unordered_map<int, Pipe>& MapP, Filter<T> f, T param)
+	void ChangingObjectsPipe( unordered_map<int, Pipe>& MapP, Filter<T,Pipe> f, T param)
 	{
 		unordered_map<int, int> IDs;
 		FilterResults(MapP, IDs, f, param);
@@ -380,7 +402,7 @@ void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 		cout << "Введите 1, если статус искомых труб 'В работе' или 0, если их статус 'В ремонте'" << endl;
 		Status = EnteringCheckingBool();
 
-		ChangingObjectsPipe(MapP, CheckByNameStatus, Status);
+		ChangingObjectsPipe(MapP, CheckByStatus, Status);
 		return;
 	case 3:
 		if (!CheckingPresenceElements(cout, SizePipes)) { return; }
@@ -577,6 +599,18 @@ void OutputInFile(const unordered_map<int,Pipe>& MapP, const unordered_map<int, 
 			T::IDreplacement(Obj1);
 			Obj.swap(Obj1);
 		}
+	void Skip(ifstream& fin, int NumberPipes)
+	{
+		int Skip;
+		string StrSkip;
+		Skip = NumberPipes * 5;
+		while (Skip != 0)
+		{
+			fin >> ws;
+			getline(fin, StrSkip);
+			--Skip;
+		}
+	}
 //Считывание из файла 
 void ReadingFromFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs)
 {
@@ -610,6 +644,7 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 				return;
 			case 2:
 				CheckingErrorsInFile(fin, CheckingPresenceElements, NumberCs);
+				Skip(fin, NumberPipes);
 				ReadingPipesFromFile(fin, MapCs, NumberCs);
 				return;
 			case 3:

@@ -24,16 +24,16 @@ test Pipe 4
 321
 1
 
-6
-test Pipe 5
-324123
-1234
-1
-
 22
 test Pipe 10
 321
 341
+1
+
+6
+test Pipe 5
+324123
+1234
 1
 
 7
@@ -69,7 +69,7 @@ Test Cs 2
 4
 Test Cs 3
 10
-0
+10
 100
 
 5
