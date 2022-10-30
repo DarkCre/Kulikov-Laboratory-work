@@ -104,7 +104,11 @@ string EnteringFileName()
 {
 	cout << endl << "Введите имя файла: " << endl;
 	string way = "";
-	cin >> way;
+	do
+	{
+		cin >> ws;
+		getline(cin, way);
+	} while (!CheckingString(way));
 	way.insert(0, "./saves/");
 	way.append(".txt");
 	return way;
