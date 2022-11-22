@@ -28,3 +28,29 @@ bool CheckingString(string S)
 	}
 	return true;
 }
+
+//Проверка по эффективности
+bool CheckByEffectiveness(const Cs& Cs, double param)
+{
+	double Workshop = Cs.GetWorkshop();
+	double WorkingWorkshops = Cs.GetWorkingWorkshops();
+	double Effectiveness = param / 100;
+	return((1 - WorkingWorkshops / Workshop) >= Effectiveness);
+}
+
+//Проверка подходит ли статус
+bool CheckByStatus(const Pipe& P, bool param)
+{
+	return(P.GetStatus() == param);
+}
+
+//Ввод Инта
+int IntInput(int beginning, int end)
+{
+	int item;
+	do
+	{
+		cin >> item;
+	} while (СheckingValues(item, cin, beginning, end) == false);
+	return item;
+}

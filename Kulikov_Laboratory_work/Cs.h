@@ -16,21 +16,20 @@ public:
 	Cs();
 
 	void Set(string CsName, int CsWorkshop, int CsWorkingWorkshops, int CsEffectiveness);
-	void Set();
-
 
 	string GetName() const;
 	int GetWorkshop() const;
 	int GetWorkingWorkshops() const;
-	int GetEffectiveness() const;
-	static int GetID();
-	void Get() const;
 
 	void EditingWorkshop();
 	bool StartWorkshop();
 	bool StopWorkshop();
 
+	static int GetID();
 	static void IDreplacement(const unordered_map<int, Cs>& MapCs);
 
 	friend ifstream& operator>>(ifstream& fin, Cs& Cs);
+	friend istream& operator>>(istream& fin, Cs& cs);
+	friend ofstream& OutputObjectsFile (ofstream& fout, const Cs& Cs);
+	friend ostream& operator<<(ostream& fout, const Cs& cs);
 };

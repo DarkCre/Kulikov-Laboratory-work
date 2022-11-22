@@ -16,22 +16,21 @@ public:
 	Pipe();
 
 	void Set(string PipeName, double PipeLength, double PipeDia, bool PipeStatus);
-	void Set();
+
 	void SetStatus(bool PipeStatus);
 
 	string GetName() const;
-	double GetLength() const;
-	double GetDia() const;
 	bool GetStatus() const;
-	static int GetID();
-	void Get() const;
 
 	void InputStatusCheck();
 
-
-
+	
+	static int GetID();
 	static void IDreplacement(const unordered_map<int, Pipe>& MapP);
 	
 	friend ifstream& operator>>(ifstream& fin, Pipe& p);
+	friend istream&  operator>>(istream& fin, Pipe& p);
+	friend ofstream& OutputObjectsFile (ofstream& fout, const Pipe& p);
+	friend ostream& operator<<(ostream& fout, const Pipe& p);
 };
 
