@@ -6,68 +6,68 @@
 using namespace std;
 
 template <typename T>
-bool СheckingValues(const T& Variable, istream& in = cin, T beginning = numeric_limits<T>::min(), T end = numeric_limits<T>::max())
+bool РЎheckingValues(const T& Variable, istream& in = cin, T beginning = numeric_limits<T>::min(), T end = numeric_limits<T>::max())
 {
 	if (in.fail() || in.peek() != '\n' || Variable<beginning || Variable>end)
 	{
 		in.clear();
 		in.ignore(1000, '\n');
-		cout << "Указаны некоректные данные, пожалуйста, укажите число от " << beginning << " до " << end << endl;
+		cout << "Г“ГЄГ Г§Г Г­Г» Г­ГҐГЄГ®Г°ГҐГЄГІГ­Г»ГҐ Г¤Г Г­Г­Г»ГҐ, ГЇГ®Г¦Г Г«ГіГ©Г±ГІГ , ГіГЄГ Г¦ГЁГІГҐ Г·ГЁГ±Г«Г® Г®ГІ " << beginning << " Г¤Г® " << end << endl;
 		return false;
 	}
 	return true;
 }
 
 template <typename T>
-bool СheckingIfstream(ifstream& fin, T& Variable, T beginning = numeric_limits<T>::min(), T end = numeric_limits<T>::max())
+bool РЎheckingIfstream(ifstream& fin, T& Variable, T beginning = numeric_limits<T>::min(), T end = numeric_limits<T>::max())
 {
 	fin >> Variable;
-	return СheckingValues(Variable, fin, beginning, end);
+	return Г‘heckingValues(Variable, fin, beginning, end);
 }
 
 
-//Проверка на существование ID
+//ГЏГ°Г®ГўГҐГ°ГЄГ  Г­Г  Г±ГіГ№ГҐГ±ГІГўГ®ГўГ Г­ГЁГҐ ID
 template<typename T>
 bool CheckingAvailabilityID(int ID, const unordered_map<int, T>& Obj)
 {
 	if (Obj.find(ID) == Obj.end())
 	{
-		cout << "Данного ID не существует." << endl;
+		cout << "Г„Г Г­Г­Г®ГЈГ® ID Г­ГҐ Г±ГіГ№ГҐГ±ГІГўГіГҐГІ." << endl;
 		return false;
 	}
 	return true;
 }
 
 
-//Фильтр для поиска
+//Г”ГЁГ«ГјГІГ° Г¤Г«Гї ГЇГ®ГЁГ±ГЄГ 
 template<typename T, typename T1>
 using Filter = bool(*)(const T1&, T param);
-//Проверка подходит ли имя
+//ГЏГ°Г®ГўГҐГ°ГЄГ  ГЇГ®Г¤ГµГ®Г¤ГЁГІ Г«ГЁ ГЁГ¬Гї
 template<typename T>
 bool CheckByName(const T& Obj, string param)
 {
 	return  (Obj.GetName().find(param) != string::npos);
 }
 
-//Проверка на наличие элементов в массиве 
+//ГЏГ°Г®ГўГҐГ°ГЄГ  Г­Г  Г­Г Г«ГЁГ·ГЁГҐ ГЅГ«ГҐГ¬ГҐГ­ГІГ®Гў Гў Г¬Г Г±Г±ГЁГўГҐ 
 template<typename T>
 bool CheckingPresenceElements(T& flow, int& size)
 {
 	if (size == 0)
 	{
-		cout << "Необходимо иметь хотя бы один элемент!" << endl;
+		cout << "ГЌГҐГ®ГЎГµГ®Г¤ГЁГ¬Г® ГЁГ¬ГҐГІГј ГµГ®ГІГї ГЎГ» Г®Г¤ГЁГ­ ГЅГ«ГҐГ¬ГҐГ­ГІ!" << endl;
 		return false;
 	}
 	return true;
 }
-//Проверка по эффективности
+//ГЏГ°Г®ГўГҐГ°ГЄГ  ГЇГ® ГЅГґГґГҐГЄГІГЁГўГ­Г®Г±ГІГЁ
 bool CheckByEffectiveness(const Cs& Cs, double param);
-//Проверка подходит ли статус
+//ГЏГ°Г®ГўГҐГ°ГЄГ  ГЇГ®Г¤ГµГ®Г¤ГЁГІ Г«ГЁ Г±ГІГ ГІГіГ±
 bool CheckByStatus(const Pipe& P, bool param);
 
 bool CheckingString(string S);
 
 bool EnteringCheckingBool();
 
-//Ввод Инта
+//Г‚ГўГ®Г¤ Г€Г­ГІГ 
 int IntInput(int beginning, int end);
