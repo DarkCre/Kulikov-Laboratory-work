@@ -49,6 +49,12 @@ bool CheckByName(const T& Obj, string param)
 	return  (Obj.GetName().find(param) != string::npos);
 }
 
+//Проверка по эффективности
+bool CheckByEffectiveness(const Cs& Cs, double param);
+//Проверка подходит ли статус
+bool CheckByStatus(const Pipe& P, bool param);
+
+
 //Проверка на наличие элементов в массиве 
 template<typename T>
 bool CheckingPresenceElements(T& flow, int& size)
@@ -60,10 +66,7 @@ bool CheckingPresenceElements(T& flow, int& size)
 	}
 	return true;
 }
-//Проверка по эффективности
-bool CheckByEffectiveness(const Cs& Cs, double param);
-//Проверка подходит ли статус
-bool CheckByStatus(const Pipe& P, bool param);
+
 
 bool CheckingString(string S);
 
