@@ -17,7 +17,6 @@ void PauseAndClearing()
 }
 
 
-
 //Создание нового элемента
 template<typename T>
 void CreatingObject(unordered_map<int, T>& Obj)
