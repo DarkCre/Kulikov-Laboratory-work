@@ -101,13 +101,7 @@ void Element_By_ElementEditingPipe(unordered_map<int, Pipe>& MapP, unordered_set
 		MapP.at(elem).InputStatusCheck();
 	}
 }
-void Element_By_ElementEditingCs(unordered_map<int, Cs>& MapCs, unordered_set<int>& SetP)
-{
-	for (const auto& elem : SetP)
-	{
-		MapCs.at(elem).EditingWorkshop();
-	}
-}
+
 
 //Пакетное редактирование статуса
 void BatchEditingPipes(unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP)
@@ -147,6 +141,7 @@ void SelectingAnEditAction(T& Obj, unordered_set<int>& SetP, FilterEditing<T> f)
 		return;
 	}
 }
+
 
 //Создание Set из всех элементов фильтра
 void SelectingAllFilterElements(unordered_map<int, int>& IDs, unordered_set<int>& SetP)
@@ -195,19 +190,6 @@ void FilterResults(unordered_map<int, T1>& Obj, unordered_map<int, int>& IDs, Fi
 	}
 }
 
-template<typename T>
-void InputAndCheckingAvailabilityID(unordered_map<int, T>& Obj, int& ID)
-{
-	do
-	{
-		ID = IntInput(0, T::GetID());
-		if (ID == 0)
-			break;
-		else if (CheckingAvailabilityID(ID, Obj))
-			break;
-	} while (true);
-}
-
 //Ввод ID для дальнейшего редактирования
 template<typename T>
 void InputSetP(unordered_map<int, T>& Obj, unordered_set<int>& SetP)
@@ -247,7 +229,7 @@ void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 	cout << "1. Редактирование по фильтру названия труб" << endl
 		<< "2. Редактирование по фильтру статуса трубы" << endl
 		<< "3. Редактирование по ID труб" << endl
-		<< "4. Редактирование по ID КС" << endl
+		<< "4. Удаление по ID КС" << endl
 		<< "0. Для возврата в главное меню." << endl << endl;
 
 	int item = IntInput(0, 4);
@@ -282,7 +264,7 @@ void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 		if (!CheckingPresenceElements(cout, SizeCs)) { return; }
 
 		InputSetP(MapCs, SetObj);
-		SelectingAnEditAction(MapCs, SetObj, Element_By_ElementEditingCs);
+		BatchErasePipes(MapCs, SetObj);
 		return;
 	case 0:
 		return;

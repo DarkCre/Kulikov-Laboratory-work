@@ -1,42 +1,21 @@
-﻿#include <conio.h> // необходима для задержки, до нажатия клавиши
-#include "Pipe.h"
-#include "Checking.h"
-#include "Cs.h"
-#include "OutputAndMmodification.h"
-#include "OperatorOverloads.h"
+﻿#include "OutputAndMmodification.h"
 #include "WorkingWithFiles.h"
-
-//Указываем по умолчание стандартное пространство имён (std), для того, что бы не указывать перед элементами данного пространства откуда они.
-using namespace std;
-//Пауза
-void PauseAndClearing()
-{
-	cout << endl << "Нажмите любую клавишу для возврата в главное меню." << endl;
-	_getch();
-	system("cls");
-}
-
-
-//Создание нового элемента
-template<typename T>
-void CreatingObject(unordered_map<int, T>& Obj)
-{
-	T obj;
-	cin>>obj;
-	Obj.emplace(obj.GetID(), obj);
-}
+#include "WorkingWithGraph.h"
+#include "Creature.h"
 
 //Функциональная часть консоли
-int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs)
+int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
 {
-	int item = IntInput(0, 6);
+	int item = IntInput(0, 7);
 
 	switch (item)
 	{
 		case 1:
-			CreatingObject(MapP);
+		{
+			CreatingPipe(MapP, D500, D700, D1400);
 			PauseAndClearing();
 			return true;
+		}
 		case 2:
 			CreatingObject(MapCs);
 			PauseAndClearing();
@@ -56,6 +35,9 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Ma
 			ReadingFromFile(MapP, MapCs);
 			PauseAndClearing();
 			return true;
+		case 7:
+			WorkingWithGraph(MapP, MapCs, D500, D700, D1400, Graph);
+			return true;
 		case 0:
 			cout << endl << "Вы хотите сохранить текущее состояние?" <<
 				endl << "Введите 1 для сохранения или 0, для выхода из программы." << endl;
@@ -72,6 +54,11 @@ int main()
 	setlocale(LC_ALL, "rus"); //Подключение руссофикатора
 	unordered_map<int, Pipe> MapP;
 	unordered_map<int, Cs> MapCs;
+	forward_list<int> D500;
+	forward_list<int> D700;
+	forward_list<int> D1400;
+	unordered_map<int, pair <int, int>> Graph;
+
 	//Запуск консоли
 	do { 
 		cout << endl;
@@ -82,6 +69,7 @@ int main()
 			<< "4. Изменение объектов" << endl
 			<< "5. Сохранить" << endl
 			<< "6. Загрузить" << endl
+			<< "7. Работа с графом" << endl
 			<< "0. Выход" << endl << endl;
-	} while (MainSharedConsole(MapP,MapCs) != 0);
+	} while (MainSharedConsole(MapP,MapCs,D500,D700,D1400, Graph) != 0);
 }

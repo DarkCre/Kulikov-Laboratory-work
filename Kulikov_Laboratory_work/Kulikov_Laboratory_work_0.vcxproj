@@ -129,20 +129,24 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Checking.cpp" />
+    <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Cs.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OperatorOverloads.cpp" />
     <ClCompile Include="OutputAndMmodification.cpp" />
     <ClCompile Include="Pipe.cpp" />
     <ClCompile Include="WorkingWithFiles.cpp" />
+    <ClCompile Include="WorkingWithGraph.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Checking.h" />
+    <ClInclude Include="Creature.h" />
     <ClInclude Include="Cs.h" />
     <ClInclude Include="OperatorOverloads.h" />
     <ClInclude Include="OutputAndMmodification.h" />
     <ClInclude Include="Pipe.h" />
     <ClInclude Include="WorkingWithFiles.h" />
+    <ClInclude Include="WorkingWithGraph.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

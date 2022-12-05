@@ -1,6 +1,4 @@
 #pragma once
-#include "Pipe.h"
-#include "Cs.h"
 #include <iostream>
 #include <fstream>
 #include "Checking.h"
@@ -15,6 +13,7 @@ ifstream& operator>>(ifstream& fin, Pipe& p);
 istream& operator>>(istream& fin, Pipe& p);
 ofstream& OutputObjectsFile(ofstream& fout, const Pipe& p);
 ostream& operator<<(ostream& fout, const Pipe& p);
+ostream& GraphOutput(ostream& fout, const unordered_map<int, pair <int, int>>& Graph, const  unordered_map<int, Pipe>& MapP);
 
 //Перегрузка оператора на вывод всего Map
 template<typename T>

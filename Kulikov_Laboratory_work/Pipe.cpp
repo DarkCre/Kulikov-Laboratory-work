@@ -26,6 +26,11 @@ void Pipe::SetStatus(bool PipeStatus)
 	_PipeStatus = PipeStatus;
 }
 
+double Pipe::GetDia() const
+{
+	return _PipeDia;
+}
+
 string Pipe::GetName() const
 {
 	return _PipeName;

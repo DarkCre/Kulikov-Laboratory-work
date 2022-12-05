@@ -1,5 +1,11 @@
 #include "Checking.h"
 
+void PauseAndClearing()
+{
+	cout << endl << "Нажмите любую клавишу для возврата в Меню." << endl;
+	_getch();
+	system("cls");
+}
 
 bool EnteringCheckingBool()
 {
@@ -53,4 +59,20 @@ int IntInput(int beginning, int end)
 		cin >> item;
 	} while (СheckingValues(item, cin, beginning, end) == false);
 	return item;
+}
+
+bool CheckingFulfillmentConditionsToGraph(const unordered_map<int, Cs>& MapCs)
+{
+	int k = 0;
+	for (const auto& elem : MapCs)
+	{
+		if (elem.second.GetWorkingWorkshops() != elem.second.GetWorkshop())
+			++k;
+	}
+	if (MapCs.size() < 2 || k < 2)
+	{
+		cout << "Для соединения КС необходимо не менее 2х КС с количеством цехов меньшим, чем максимальное!" << endl;
+		return false;
+	}
+	return true;
 }

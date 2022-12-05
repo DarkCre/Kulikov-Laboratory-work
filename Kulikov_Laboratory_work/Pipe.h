@@ -1,8 +1,8 @@
 #pragma once
 #include <unordered_map>
 #include <iostream>
-using namespace std;
 
+using namespace std;
 
 class Pipe
 {
@@ -21,13 +21,16 @@ public:
 
 	string GetName() const;
 	bool GetStatus() const;
+	double GetDia() const;
 
 	void InputStatusCheck();
 
 	
 	static int GetID();
 	static void IDreplacement(const unordered_map<int, Pipe>& MapP);
-	
+
+
+
 	friend ifstream& operator>>(ifstream& fin, Pipe& p);
 	friend istream&  operator>>(istream& fin, Pipe& p);
 	friend ofstream& OutputObjectsFile (ofstream& fout, const Pipe& p);

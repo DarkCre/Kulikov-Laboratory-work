@@ -1,5 +1,7 @@
 #include "OperatorOverloads.h"
 
+
+
 //Перегрузка операторов
 ostream& operator<<(ostream& fout, const Pipe& p)
 {
@@ -15,6 +17,19 @@ ostream& operator<<(ostream& fout, const Cs& cs)
 		<< "Количество цехов: " << cs._CsWorkshop << endl
 		<< "Количество цехов в работе: " << cs._CsWorkingWorkshops << endl
 		<< "Эффективность: " << cs._CsEffectiveness << endl;
+	return fout;
+}
+ostream& GraphOutput(ostream& fout, const unordered_map<int, pair <int, int>>& Graph, const  unordered_map<int, Pipe>& MapP)
+{
+	if (Graph.size() == 0)
+	{
+		cout << "Необходимо создать хотя бы одно соединение КС!";
+		return fout;
+	}
+	for (const auto& elem : Graph)
+	{
+		cout << elem.second.first << "---" << MapP.at(elem.first).GetDia() << "---" << elem.second.second << endl;
+	}
 	return fout;
 }
 //Перегрузка оператора вывода 
@@ -66,16 +81,32 @@ istream& operator>>(istream& fin, Pipe& p)
 		cout << "Введите длину трубы (0.00):" << endl;
 		cin >> p._PipeLength;
 	} while (!СheckingValues(p._PipeLength, cin, 0.0001));
-	do//Считывание диаметра трубы
+
+
 	{
-		cout << "Введите диаметр трубы (0.00):" << endl;
-		cin >> p._PipeDia;
-	} while (!СheckingValues(p._PipeDia, cin, 0.0001));
+		cout << "Введите:" << endl
+			<< "1, если диаметр трубы = 500" << endl
+			<< "2, если диаметр трубы = 700" << endl
+			<< "3, если диаметр трубы = 1400" << endl;
 
-	cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
-	p._PipeStatus = EnteringCheckingBool();
+		int item = IntInput(1, 3);
 
-	return fin;
+		switch (item)
+		{
+		case 1:
+		{ p._PipeDia = 500;	break;}
+		case 2:
+		{ p._PipeDia = 700; break;}
+		case 3:
+		{ p._PipeDia = 1400; break;}
+		}
+	}
+	{
+		cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
+		p._PipeStatus = EnteringCheckingBool();
+
+		return fin;
+	}
 }
 istream& operator>>(istream& fin, Cs& cs)
 {
@@ -92,11 +123,6 @@ istream& operator>>(istream& fin, Cs& cs)
 		cout << "Введите количество цехов компрессорной станции (Целое, положительное число):" << endl;
 		cin >> cs._CsWorkshop;
 	} while (!СheckingValues(cs._CsWorkshop, cin, 1));
-	do//Считывание количества рабочих цехов КС
-	{
-		cout << "Введите количество работающих цехов (Целое, положительное число, которое меньше количества цехов):" << endl;
-		cin >> cs._CsWorkingWorkshops;
-	} while (!СheckingValues(cs._CsWorkingWorkshops, cin, 0, cs._CsWorkshop));
 	do//Считывание эффективности КС
 	{
 		cout << "Введите эффективность станции (Целое число от -100 до 100):" << endl;
@@ -105,4 +131,5 @@ istream& operator>>(istream& fin, Cs& cs)
 
 	return fin;
 }
+
 

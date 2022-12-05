@@ -3,7 +3,10 @@
 #include <unordered_map>
 #include "Pipe.h"
 #include "Cs.h"
+#include <conio.h>
 using namespace std;
+
+
 
 template <typename T>
 bool —heckingValues(const T& Variable, istream& in = cin, T beginning = numeric_limits<T>::min(), T end = numeric_limits<T>::max())
@@ -67,10 +70,37 @@ bool CheckingPresenceElements(T& flow, int& size)
 	return true;
 }
 
-
 bool CheckingString(string S);
 
 bool EnteringCheckingBool();
 
 //¬‚Ó‰ »ÌÚ‡
 int IntInput(int beginning, int end);
+
+template<typename T>
+void InputAndCheckingAvailabilityID(unordered_map<int, T>& Obj, int& ID)
+{
+	do
+	{
+		ID = IntInput(0, T::GetID());
+		if (ID == 0)
+			break;
+		else if (CheckingAvailabilityID(ID, Obj))
+			break;
+	} while (true);
+}
+
+bool CheckingFulfillmentConditionsToGraph(const unordered_map<int, Cs>& MapCs);
+
+template<typename T>
+void InputAndCheckingAvailabilityIDToGraph(unordered_map<int, T>& Obj, int& ID)
+{
+	do
+	{
+		ID = IntInput(1, T::GetID());
+		if (CheckingAvailabilityID(ID, Obj))
+			return;
+	} while (true);
+}
+
+void PauseAndClearing();
