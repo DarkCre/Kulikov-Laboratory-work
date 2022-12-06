@@ -1,5 +1,6 @@
 #include "WorkingWithGraph.h"
 #include <set>
+#include <stack>
 
 		int InputGraphIDBegin(unordered_map<int, Cs>& MapCs, int ID)
 		{
@@ -103,6 +104,16 @@
 
 	}
 
+	int SummCollumn(int n,int i, vector<vector<int>> AdjacencyMatrix)
+	{
+		int Summ = 0;
+		for (int j = 1; j < n+2; ++j)
+		{
+			Summ+=AdjacencyMatrix[j][i];
+		}
+		return Summ;
+	}
+
 	int GraphManagementConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
 	{
 		int item = IntInput(0, 4);
@@ -125,6 +136,7 @@
 			return true;
 		case 3:
 		{
+			//выборка ID  —, между которыми есть хот€ бы одна св€зь
 			set<int> IDCsGraph;
 
 			if (Graph.size() == 0)
@@ -139,6 +151,7 @@
 			}
 
 			int n = (int)IDCsGraph.size();
+			//создание заготовки дл€ матрицы смежности
 			vector<vector<int>> AdjacencyMatrix = {vector<int>(n+1,0)};
 			/*AdjacencyMatrix.reserve(n);*/
 			
@@ -160,22 +173,85 @@
 				AdjacencyMatrix.push_back(row);
 			}
 
-			for (const auto& row : AdjacencyMatrix) 
+			//вывод матрицы смежности
+			cout << "ћатрица смежности:" << endl;
+			for (const auto& row : AdjacencyMatrix)
 			{
-				for (const auto& item : row) 
+				for (const auto& item : row)
 				{
-					cout << ' ' << item;
+					cout << ' ' << ' ' << item;
 				}
 				cout << endl;
 			}
 
-			/*for (int i = 0; i < n; ++i)
+			//заполнение матрицы смежности 
+			for (const auto& elem : Graph)
 			{
-				for (int j = 0; i < n; ++i)
+				for (int i = 1; i < n + 1; ++i)
 				{
-					
+					if (AdjacencyMatrix[0][i] == elem.second.second)
+					{
+						for (int j = 1; j < n + 1; ++j)
+						{
+							if (AdjacencyMatrix[j][0] == elem.second.first)
+							{
+								AdjacencyMatrix[j][i] = elem.first;
+							}
+						}
+					}
 				}
-			}*/
+			}
+
+			AdjacencyMatrix.push_back(vector<int>(n + 1, -1));
+			//вывод матрицы смежности
+			cout << "ћатрица смежности:" << endl;
+			for (const auto& row : AdjacencyMatrix)
+			{
+				for (const auto& item : row)
+				{
+					cout << ' ' <<' '<< item;
+				}
+				cout << endl;
+			}
+
+			//создание вектора топологической сортировки
+			stack<int> SortingResult;
+			int k = 0;
+			while (k < n + 1 && SortingResult.size() != n)
+			{
+				for (int i = 1; i < n + 1; ++i)
+				{
+					if (SummCollumn(n, i, AdjacencyMatrix) == -1)
+					{
+						SortingResult.push(AdjacencyMatrix[0][i]);
+						AdjacencyMatrix[n + 1][i]=0;
+						for (int j = 1; j < n + 1; ++j)
+						{
+							AdjacencyMatrix[i][j] = 0;
+						}
+						break;
+					}
+				}
+			++k;
+			}
+			if (k >= n + 1)
+			{
+				cout << "“опологическа€ сортировка дл€ цикличного графа невозможна!";
+				return 0;
+			}
+			//вывод стека в консоль
+			stack<int> SortingResult1;
+			while (SortingResult.size() > 0)
+			{
+				item = SortingResult.top();
+				SortingResult.pop();
+				SortingResult1.push(item);
+			}
+			while (SortingResult1.size() > 0)
+			{
+				cout<<SortingResult1.top();
+				SortingResult1.pop();
+			}
 
 
 			PauseAndClearing();
