@@ -1,6 +1,5 @@
 #include "WorkingWithGraph.h"
-#include <set>
-#include <stack>
+
 
 		int InputGraphIDBegin(unordered_map<int, Cs>& MapCs, int ID)
 		{
@@ -153,7 +152,6 @@
 			int n = (int)IDCsGraph.size();
 			//создание заготовки для матрицы смежности
 			vector<vector<int>> AdjacencyMatrix = {vector<int>(n+1,0)};
-			/*AdjacencyMatrix.reserve(n);*/
 			
 			auto it = IDCsGraph.begin();
 			for (int i = 1;  i < n+1; ++i,++it)
@@ -171,17 +169,6 @@
 					++k;
 				}
 				AdjacencyMatrix.push_back(row);
-			}
-
-			//вывод матрицы смежности
-			cout << "Матрица смежности:" << endl;
-			for (const auto& row : AdjacencyMatrix)
-			{
-				for (const auto& item : row)
-				{
-					cout << ' ' << ' ' << item;
-				}
-				cout << endl;
 			}
 
 			//заполнение матрицы смежности 
@@ -202,20 +189,23 @@
 				}
 			}
 
-			AdjacencyMatrix.push_back(vector<int>(n + 1, -1));
 			//вывод матрицы смежности
 			cout << "Матрица смежности:" << endl;
 			for (const auto& row : AdjacencyMatrix)
 			{
 				for (const auto& item : row)
 				{
-					cout << ' ' <<' '<< item;
+					cout << ' ' << ' ' << item;
 				}
 				cout << endl;
 			}
 
+
+			AdjacencyMatrix.push_back(vector<int>(n + 1, -1));
+
 			//создание вектора топологической сортировки
-			stack<int> SortingResult;
+			//stack<int> SortingResult;
+			queue<int> SortingResult;
 			int k = 0;
 			while (k < n + 1 && SortingResult.size() != n)
 			{
@@ -236,23 +226,18 @@
 			}
 			if (k >= n + 1)
 			{
-				cout << "Топологическая сортировка для цикличного графа невозможна!";
+				cout << "Топологическая сортировка для цикличного графа невозможна!"<<endl;
 				return 0;
 			}
+
 			//вывод стека в консоль
-			stack<int> SortingResult1;
+			cout << endl;
 			while (SortingResult.size() > 0)
 			{
-				item = SortingResult.top();
+				cout<<SortingResult.front()<< " ";
 				SortingResult.pop();
-				SortingResult1.push(item);
 			}
-			while (SortingResult1.size() > 0)
-			{
-				cout<<SortingResult1.top();
-				SortingResult1.pop();
-			}
-
+			cout << endl;
 
 			PauseAndClearing();
 			return true;

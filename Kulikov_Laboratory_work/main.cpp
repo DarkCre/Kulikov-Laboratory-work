@@ -28,11 +28,11 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Ma
 			PauseAndClearing();
 			return true;
 		case 5:
-			OutputInFile(MapP, MapCs);
+			OutputInFile(MapP, MapCs, D500, D700, D1400, Graph);
 			PauseAndClearing();
 			return true;
 		case 6:
-			ReadingFromFile(MapP, MapCs);
+			ReadingFromFile(MapP, MapCs, D500, D700, D1400, Graph);
 			PauseAndClearing();
 			return true;
 		case 7:
@@ -41,7 +41,7 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Ma
 		case 0:
 			cout << endl << "Вы хотите сохранить текущее состояние?" <<
 				endl << "Введите 1 для сохранения или 0, для выхода из программы." << endl;
-			if (EnteringCheckingBool()) { OutputInFile(MapP, MapCs);}
+			if (EnteringCheckingBool()) { OutputInFile(MapP, MapCs, D500, D700, D1400, Graph);}
 			return false;
 	}
 	

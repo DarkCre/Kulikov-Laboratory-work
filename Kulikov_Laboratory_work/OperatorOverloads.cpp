@@ -2,7 +2,7 @@
 
 
 
-//Перегрузка операторов
+
 ostream& operator<<(ostream& fout, const Pipe& p)
 {
 	cout << "Название трубы: " << p._PipeName << endl
@@ -32,7 +32,22 @@ ostream& GraphOutput(ostream& fout, const unordered_map<int, pair <int, int>>& G
 	}
 	return fout;
 }
-//Перегрузка оператора вывода 
+ofstream& operator<<(ofstream& fout, const unordered_map<int, pair<int, int>>& Graph)
+{
+	for (const auto& elem : Graph)
+	{
+		fout <<  elem.first << endl << elem.second.first << endl << elem.second.second << endl<<endl;
+	}
+	return fout;
+}
+ofstream& operator<<(ofstream& fout, forward_list<int>& D)
+{
+	for (const auto& elem : D)
+	{
+		fout << elem << endl;
+	}
+	return fout;
+}
 ofstream& OutputObjectsFile(ofstream& fout, const Pipe& p)
 {
 	fout << p._PipeName << endl << p._PipeLength << endl << p._PipeDia << endl << p._PipeStatus << endl;
@@ -43,7 +58,8 @@ ofstream& OutputObjectsFile(ofstream& fout, const Cs& Cs)
 	fout << Cs._CsName << endl << Cs._CsWorkshop << endl << Cs._CsWorkingWorkshops << endl << Cs._CsEffectiveness << endl;
 	return fout;
 }
-//Перегрузка ifstream на считывание трубы из файла с проверкой
+
+
 ifstream& operator>>(ifstream& fin, Pipe& p)
 {
 	fin >> ws;
@@ -55,7 +71,6 @@ ifstream& operator>>(ifstream& fin, Pipe& p)
 
 	return fin;
 }
-//Перегрузка ifstream на считывание Cs из файла с проверкой
 ifstream& operator>>(ifstream& fin, Cs& Cs)
 {
 	fin >> ws;
@@ -64,6 +79,36 @@ ifstream& operator>>(ifstream& fin, Cs& Cs)
 	fin >> Cs._CsWorkshop;
 	fin >> Cs._CsWorkingWorkshops;
 	fin >> Cs._CsEffectiveness;
+	return fin;
+}
+ifstream& operator>>(ifstream& fin, unordered_map<int, pair<int, int>>& Graph)
+{
+	Graph.clear();
+	int SizeGraph;
+	int IDPipe;
+	int IDBegin;
+	int IDEnd;
+	fin >> SizeGraph;
+	while (SizeGraph > 0)
+	{
+		fin >> IDPipe;
+		fin >> IDBegin;
+		fin >> IDEnd;
+		Graph.emplace(IDPipe, pair<int, int>(IDBegin, IDEnd));
+		--SizeGraph;
+	}
+	return fin;
+}
+ifstream& operator>>(ifstream& fin, forward_list<int>& D)
+{
+	D.clear();
+	int IDPipe;
+	fin >> IDPipe;
+	while (IDPipe != -1)
+	{
+		D.emplace_front(IDPipe);
+		fin >> IDPipe;
+	}
 	return fin;
 }
 istream& operator>>(istream& fin, Pipe& p)

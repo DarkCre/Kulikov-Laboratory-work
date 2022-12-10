@@ -21,7 +21,7 @@ public:
 	int GetWorkshop() const;
 	int GetWorkingWorkshops() const;
 
-	void EditingWorkshop();
+	//void EditingWorkshop();
 	bool StartWorkshop();
 	bool StopWorkshop();
 

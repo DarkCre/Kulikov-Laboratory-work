@@ -42,7 +42,7 @@ int Cs::GetID()
 	return _CsID;
 }
 
-
+/*
 void Cs::EditingWorkshop()
 {
 	cout << "Äëÿ Êñ " << _CsName << endl;
@@ -76,6 +76,7 @@ void Cs::EditingWorkshop()
 		}
 	}
 }
+*/
 
 bool Cs::StartWorkshop()
 {
