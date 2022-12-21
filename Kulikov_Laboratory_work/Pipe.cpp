@@ -31,6 +31,10 @@ double Pipe::GetDia() const
 	return _PipeDia;
 }
 
+double Pipe::GetLength() const
+{
+	return _PipeLength;
+}
 string Pipe::GetName() const
 {
 	return _PipeName;

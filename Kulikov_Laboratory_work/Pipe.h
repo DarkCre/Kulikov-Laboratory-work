@@ -22,6 +22,7 @@ public:
 	string GetName() const;
 	bool GetStatus() const;
 	double GetDia() const;
+	double GetLength() const;
 
 	void InputStatusCheck();
 

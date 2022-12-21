@@ -39,7 +39,7 @@ int findFlow(int u, int flow) {
 }
 
 //https://gist.github.com/gdhsnlvr/be6d8f1a275eb9902271
-int Ford_Fulkerson(int _numOfVertex, int _numOfEdge, int _sourceVertex, int _destinationVertex, unordered_map<int, pair <int, int>>& Graph1) {
+int Ford_Fulkerson(int _numOfVertex, int _numOfEdge, int _sourceVertex, int _destinationVertex, unordered_map<int, pair <int, int>>& Graph1, unordered_map<int, Pipe>& MapP) {
     fill(firstEdge, firstEdge + MAX_V, -1);     // -1 означает ребра нет
     numOfEdge = _numOfEdge;
     numOfVertex = _numOfVertex;
@@ -48,8 +48,7 @@ int Ford_Fulkerson(int _numOfVertex, int _numOfEdge, int _sourceVertex, int _des
 
     for (const auto& elem : Graph1)
     {
-        addEdge(elem.second.first, elem.second.second, elem.first);
-
+        addEdge(elem.second.first, elem.second.second, MapP.at(elem.first).GetDia());
     }
 
     // Нахождение максимального потока
