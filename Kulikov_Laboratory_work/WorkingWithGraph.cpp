@@ -234,6 +234,100 @@
 		cout << endl;
 	}
 
+		void DeletingConnections(unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph, unordered_set<int> SetP)
+		{
+			for (const auto elem : SetP)
+			{
+				MapCs.at(Graph.at(elem).first).StopWorkshop();
+				MapCs.at(Graph.at(elem).second).StopWorkshop();
+				Graph.erase(elem);
+				FreePipes.push_front(elem);
+			}
+
+		}
+		void DeletingConnections(unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph, set<int> SetP)
+		{
+			for (const auto elem : SetP)
+			{
+				MapCs.at(Graph.at(elem).first).StopWorkshop();
+				MapCs.at(Graph.at(elem).second).StopWorkshop();
+				Graph.erase(elem);
+				FreePipes.push_front(elem);
+			}
+
+		}
+
+	bool DeletingGraphObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
+	{
+		int item1 = IntInput(0, 1);
+		switch (item1)
+		{
+		case 0:
+		{
+			cout << "Введите через Enter ID труб, которые нужно удалить." << endl
+				<< "Для завершения ввода введите 0" << endl;
+			int ID;
+			unordered_set<int> SetP;
+
+			InputAndCheckingAvailabilityID(Graph, ID, MapP);
+			while (ID != 0)
+			{
+				SetP.emplace(ID);
+				InputAndCheckingAvailabilityID(Graph, ID, MapP);
+			}
+			cout << endl;
+
+			DeletingConnections(MapCs, FreePipes, Graph,SetP);
+
+			break;
+		}
+		case 1:
+		{
+			cout << "Введите через Enter ID КС, которые нужно удалить." << endl
+				<< "Для завершения ввода введите 0" << endl;
+			int ID;
+			unordered_set<int> SetP1;
+
+			set<int> IDCsGraph;
+			if (SelectionOfTheCSGraphID(Graph, IDCsGraph) == false)
+				return false;
+			int n = (int)IDCsGraph.size();
+			//создание заготовки для матрицы смежности
+			vector<vector<int>> AdjacencyMatrix = { vector<int>(n + 1,0) };
+			CreatingAndFillingInTheAdjacencyMatrix(Graph, AdjacencyMatrix, n, IDCsGraph);
+
+			InputAndCheckingAvailabilityID(IDCsGraph, ID, MapCs);
+			while (ID != 0)
+			{
+				SetP1.emplace(ID);
+				InputAndCheckingAvailabilityID(IDCsGraph, ID, MapCs);
+			}
+			cout << endl;
+			set<int> SetP;
+			for (const auto elem : SetP1)
+			{
+				for (int i = 1; i < n + 1; ++i)
+				{
+					SetP.emplace(AdjacencyMatrix[i][elem]);
+					SetP.emplace(AdjacencyMatrix[elem][i]);
+				}
+			}
+			SetP.erase(0);
+			for (const auto elem : SetP)
+			{
+				MapCs.at(Graph.at(elem).first).StopWorkshop();
+				MapCs.at(Graph.at(elem).second).StopWorkshop();
+				Graph.erase(elem);
+				FreePipes.push_front(elem);
+			}
+			break;
+		}
+
+		}
+
+	}
+
+
 	int GraphManagementConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
 	{
 		int item = IntInput(0, 4);
@@ -251,79 +345,20 @@
 			return true;
 		}
 		case 2:
-			{//прописать проверку на наличие элементов в графе
+			{
+			set<int> IDCsGraph;
+			if (SelectionOfTheCSGraphID(Graph, IDCsGraph) == false)
+				return false;
+
 			cout << "Введите 0, для удаления труб из графа" << endl
 				<< "Или 1, для удаления вершин из графа" << endl;
 
-			int item1 = IntInput(0, 1);
-			switch (item1)
-			{
-				
-			case 0:
-			{
-				cout << "Введите через Enter ID труб, которые нужно удалить." << endl
-					<< "Для завершения ввода введите 0" << endl;
-				int ID;
-				unordered_set<int> SetP;
-				
-				InputAndCheckingAvailabilityID(Graph, ID,MapP);
-				while (ID != 0)
-				{
-					SetP.emplace(ID);
-						InputAndCheckingAvailabilityID(Graph, ID, MapP);
-				}
-				cout << endl;
-
-				for (const auto elem : SetP)
-				{
-					MapCs.at(Graph.at(elem).first).StopWorkshop();
-					MapCs.at(Graph.at(elem).second).StopWorkshop();
-					Graph.erase(elem);
-					FreePipes.push_front(elem);
-				}
-
-			}
-			case 1:
-			{
-				cout << "Введите через Enter ID КС, которые нужно удалить." << endl
-					<< "Для завершения ввода введите 0" << endl;
-				int ID;
-				unordered_set<int> SetP;
-
-				set<int> IDCsGraph;
-				if (SelectionOfTheCSGraphID(Graph, IDCsGraph) == false)
-					return false;
-				int n = (int)IDCsGraph.size();
-				//создание заготовки для матрицы смежности
-				vector<vector<int>> AdjacencyMatrix = { vector<int>(n + 1,0) };
-				CreatingAndFillingInTheAdjacencyMatrix(Graph, AdjacencyMatrix, n, IDCsGraph);
-
-				InputAndCheckingAvailabilityID(IDCsGraph, ID, MapCs);
-				while (ID != 0)
-				{
-					SetP.emplace(ID);
-					InputAndCheckingAvailabilityID(IDCsGraph, ID, MapCs);
-				}
-				cout << endl;
-
-				for 
-
-				for (const auto elem : SetP)
-				{
-					MapCs.at(Graph.at(elem).first).StopWorkshop();
-					MapCs.at(Graph.at(elem).second).StopWorkshop();
-					Graph.erase(elem);
-					FreePipes.push_front(elem);
-				}
-			}
-						
-			}
-
-		}
-			//DeletingGraphObjects(Graph);
+			
+			DeletingGraphObjects(MapP,MapCs,FreePipes,Graph);
 
 			PauseAndClearing();
 			return true;
+		}
 		case 3:
 		{
 			TopologicalSorting(Graph);

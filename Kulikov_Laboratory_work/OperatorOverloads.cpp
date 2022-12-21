@@ -28,7 +28,7 @@ ostream& GraphOutput(ostream& fout, const unordered_map<int, pair <int, int>>& G
 	}
 	for (const auto& elem : Graph)
 	{
-		cout << elem.second.first << "---" << MapP.at(elem.first).GetDia() << "---" << elem.second.second << endl << ". Для трубы с ID " << elem.first << endl;;
+		cout << elem.second.first << "---" << MapP.at(elem.first).GetDia() << "---" << elem.second.second << ". Для трубы с ID " << elem.first << endl;;
 	}
 	return fout;
 }
