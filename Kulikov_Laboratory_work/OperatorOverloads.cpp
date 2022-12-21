@@ -28,7 +28,7 @@ ostream& GraphOutput(ostream& fout, const unordered_map<int, pair <int, int>>& G
 	}
 	for (const auto& elem : Graph)
 	{
-		cout << elem.second.first << "---" << MapP.at(elem.first).GetDia() << "---" << elem.second.second << endl;
+		cout << elem.second.first << "---" << MapP.at(elem.first).GetDia() << "---" << elem.second.second << endl << ". Для трубы с ID " << elem.first << endl;;
 	}
 	return fout;
 }
@@ -126,26 +126,12 @@ istream& operator>>(istream& fin, Pipe& p)
 		cout << "Введите длину трубы (0.00):" << endl;
 		cin >> p._PipeLength;
 	} while (!СheckingValues(p._PipeLength, cin, 0.0001));
-
-
+	do//Считывание длины трубы
 	{
-		cout << "Введите:" << endl
-			<< "1, если диаметр трубы = 500" << endl
-			<< "2, если диаметр трубы = 700" << endl
-			<< "3, если диаметр трубы = 1400" << endl;
+		cout << "Введите диаметр трубы (0.00):" << endl;
+		cin >> p._PipeDia;
+	} while (!СheckingValues(p._PipeDia, cin, 0.0001));
 
-		int item = IntInput(1, 3);
-
-		switch (item)
-		{
-		case 1:
-		{ p._PipeDia = 500;	break;}
-		case 2:
-		{ p._PipeDia = 700; break;}
-		case 3:
-		{ p._PipeDia = 1400; break;}
-		}
-	}
 	{
 		cout << "Введите статус трубы (в ремонте - 0, в работоспособном состоянии - 1): " << endl;
 		p._PipeStatus = EnteringCheckingBool();

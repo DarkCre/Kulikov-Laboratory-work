@@ -1,4 +1,5 @@
 #include "OutputAndMmodification.h"
+#include <set>
 
 //Ввод фрагмента имени
 string EnteringFragmentName()
@@ -116,7 +117,7 @@ void BatchEditingPipes(unordered_map<int, Pipe>& MapP, unordered_set<int>& SetP)
 
 //Пакетное  удаление
 template<typename T>
-void BatchErasePipes(T& Obj, unordered_set<int>& SetP)
+void BatchErasePipes(T& Obj,const unordered_set<int>& SetP)
 {
 	for (const auto& elem : SetP)
 	{
@@ -127,7 +128,7 @@ void BatchErasePipes(T& Obj, unordered_set<int>& SetP)
 
 //Выбор действия с элементами
 template<typename T>
-void SelectingAnEditAction(T& Obj, unordered_set<int>& SetP, FilterEditing<T> f)
+void SelectingAnEditAction(T& Obj, unordered_set<int>& SetP, FilterEditing<T> f, forward_list<int>& FreePipes)
 {
 	cout << endl << "Введите 1 для редактирования объектов или 0 для удаления." << endl;
 	int item = IntInput(0, 1);
@@ -137,7 +138,29 @@ void SelectingAnEditAction(T& Obj, unordered_set<int>& SetP, FilterEditing<T> f)
 		f(Obj, SetP);
 		return;
 	case 0:
+
 		BatchErasePipes(Obj, SetP);
+
+		for (const auto elem : SetP)
+		{
+			auto it0 = FreePipes.begin();
+			auto it1 = FreePipes.begin();
+			bool remfl = false;
+
+			while (it1 != FreePipes.end())
+			{
+				if (elem==*it1)
+					{
+						if (it1 == FreePipes.begin())
+							FreePipes.pop_front();
+						else
+							FreePipes.erase_after(it0);
+						break;
+					}
+				it0 = it1++;
+			}
+		}
+
 		return;
 	}
 }
@@ -152,7 +175,7 @@ void SelectingAllFilterElements(unordered_map<int, int>& IDs, unordered_set<int>
 	}
 }
 //Что необходимо удалить или отредактировать 
-void EnteringIDChange(unordered_map<int, int>& IDs, unordered_set<int>& SetP)
+void EnteringIDChange(unordered_map<int, int>& IDs, unordered_set<int>& SetP, forward_list<int>& FreePipes)
 {
 	int Number = 0;
 	cout << "Введите -1 для того, что бы выбрать все выведенные объекты" << endl
@@ -167,6 +190,22 @@ void EnteringIDChange(unordered_map<int, int>& IDs, unordered_set<int>& SetP)
 	}
 	if (Number == 0 && SetP.size() == 0) { return; }
 	if (Number == -1) { SelectingAllFilterElements(IDs, SetP); }
+	unordered_set<int> SetP1 = SetP;
+
+	for (const auto elem : FreePipes)
+	{
+		if (SetP.find(elem)!=SetP.end())
+		{
+			SetP1.erase(elem);
+		}
+	}
+
+	for (const auto elem : SetP1)
+	{
+		cout << "Труба с ID " << elem << " используется в графе! Редактирование или удаление элемента не возможно" << endl;
+		SetP.erase(elem);
+	}
+
 }
 //Результаты фильтрации
 template<typename T, typename T1>
@@ -192,11 +231,28 @@ void FilterResults(unordered_map<int, T1>& Obj, unordered_map<int, int>& IDs, Fi
 
 //Ввод ID для дальнейшего редактирования
 template<typename T>
-void InputSetP(unordered_map<int, T>& Obj, unordered_set<int>& SetP)
+void InputSetP(unordered_map<int, T>& Obj, unordered_set<int>& SetP, forward_list<int>& FreePipes)
 {
 	cout << "Введите через Enter ID объектов, которые нужно изменить." << endl
 		<< "Для завершения ввода введите 0" << endl;
 	int ID;
+
+	InputAndCheckingAvailabilityID(Obj, ID, FreePipes);
+	while (ID != 0)
+	{
+		SetP.emplace(ID);
+		InputAndCheckingAvailabilityID(Obj, ID,FreePipes);
+	}
+	cout << endl;
+}
+
+
+void InputSetCs(unordered_map<int, Cs>& Obj, unordered_set<int>& SetP, unordered_map<int, pair <int, int>>& Graph)
+{
+	cout << "Введите через Enter ID объектов, которые нужно изменить." << endl
+		<< "Для завершения ввода введите 0" << endl;
+	int ID;
+	unordered_set<int> SetPdel;
 	InputAndCheckingAvailabilityID(Obj, ID);
 	while (ID != 0)
 	{
@@ -204,22 +260,44 @@ void InputSetP(unordered_map<int, T>& Obj, unordered_set<int>& SetP)
 		InputAndCheckingAvailabilityID(Obj, ID);
 	}
 	cout << endl;
+	set<int> IDCsGraph;
+	for (const auto& elem : Graph)
+	{
+		IDCsGraph.emplace(elem.second.first);
+		IDCsGraph.emplace(elem.second.second);
+	}
+	for (const auto elem : SetP)
+	{
+		if (IDCsGraph.find(elem) != IDCsGraph.end())
+		{
+			cout << "Для объекта " << elem << " удаление не возможно, т.к. он участвует в графе!" << endl;
+			SetPdel.emplace(elem);
+		}
+	}
+	for (const auto elem : SetPdel)
+	{
+		if (SetP.find(elem) != SetP.end())
+		{
+			SetP.erase(elem);
+		}
+	}
 }
+
 
 //Изменение объектов
 template<typename T>
-void ChangingObjectsPipe(unordered_map<int, Pipe>& MapP, Filter<T, Pipe> f, T param)
+void ChangingObjectsPipe(unordered_map<int, Pipe>& MapP, Filter<T, Pipe> f, T param, forward_list<int>& FreePipes)
 {
 	unordered_map<int, int> IDs;
 	FilterResults(MapP, IDs, f, param);
 	unordered_set<int> SetP;
-	EnteringIDChange(IDs, SetP);
+	EnteringIDChange(IDs, SetP,FreePipes);
 
-	SelectingAnEditAction(MapP, SetP, BatchEditingPipes);
+	SelectingAnEditAction(MapP, SetP, BatchEditingPipes,FreePipes);
 }
 
 //Изменение объектов
-void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs)
+void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, unordered_map<int, pair <int, int>>& Graph, forward_list<int>& FreePipes)
 {
 	string Name = "NoName";
 	unordered_set<int> SetObj;
@@ -242,7 +320,7 @@ void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 		cout << endl;
 		Name = EnteringFragmentName();
 
-		ChangingObjectsPipe(MapP, CheckByName, Name);
+		ChangingObjectsPipe(MapP, CheckByName, Name, FreePipes);
 		return;
 
 	case 2:
@@ -252,18 +330,18 @@ void ChangingObjects(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 		cout << "Введите 1, если статус искомых труб 'В работе' или 0, если их статус 'В ремонте'" << endl;
 		Status = EnteringCheckingBool();
 
-		ChangingObjectsPipe(MapP, CheckByStatus, Status);
+		ChangingObjectsPipe(MapP, CheckByStatus, Status, FreePipes);
 		return;
 	case 3:
 		if (!CheckingPresenceElements(cout, SizePipes)) { return; }
 
-		InputSetP(MapP, SetObj);
-		SelectingAnEditAction(MapP, SetObj, Element_By_ElementEditingPipe);
+		InputSetP(MapP, SetObj,FreePipes);
+		SelectingAnEditAction(MapP, SetObj, Element_By_ElementEditingPipe, FreePipes);
 		return;
 	case 4:
 		if (!CheckingPresenceElements(cout, SizeCs)) { return; }
 
-		InputSetP(MapCs, SetObj);
+		InputSetCs(MapCs, SetObj,Graph);
 		BatchErasePipes(MapCs, SetObj);
 		return;
 	case 0:

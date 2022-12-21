@@ -14,7 +14,7 @@ void OutputInFileObject(ofstream& fout, unordered_map<int, T>& Obj)
 	}
 }
 //Вывод в файл 
-void OutputInFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
+void OutputInFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
 {
 	cout << "5.Сохранение в файл." << endl;
 	string way = EnteringFileName();
@@ -34,14 +34,8 @@ void OutputInFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs,
 		fout << Graph.size()<<endl;
 		fout << Graph<<endl;
 
-		fout << D500 << endl;
+		fout << FreePipes << endl;
 		fout << -1<<endl;
-
-		fout << D700 << endl;
-		fout << -1 << endl;
-
-		fout << D1400 << endl;
-		fout << -1 << endl;
 
 		fout.close();
 		cout << "Данные сохранены";
@@ -74,7 +68,7 @@ void ReadingPipesFromFile(ifstream& fin, unordered_map<int, T>& Obj, int& Number
 }
 
 //Считывание из файла 
-void ReadingFromFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
+void ReadingFromFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
 {
 	cout << "6.Загрузка данных из файла." << endl
 		<< "Данное действие приведёт к перезаписи введёных данных (если они есть). Убедитесь, что они вам не нужны." << endl
@@ -102,9 +96,8 @@ void ReadingFromFile(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Map
 
 			fin >> Graph;
 
-			fin >> D500;
-			fin >> D700;
-			fin >> D1400;
+			fin >> FreePipes;
+
 		}
 		catch (const  ifstream::failure& ex)
 		{

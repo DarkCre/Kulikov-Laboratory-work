@@ -4,7 +4,7 @@
 #include "Creature.h"
 
 //Функциональная часть консоли
-int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
+int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
 {
 	int item = IntInput(0, 7);
 
@@ -12,7 +12,7 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Ma
 	{
 		case 1:
 		{
-			CreatingPipe(MapP, D500, D700, D1400);
+			CreatingPipe(MapP, FreePipes);
 			PauseAndClearing();
 			return true;
 		}
@@ -24,24 +24,24 @@ int MainSharedConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& Ma
 			InformationOutput(MapP,MapCs);
 			return true;
 		case 4:
-			ChangingObjects(MapP, MapCs);
+			ChangingObjects(MapP, MapCs, Graph,FreePipes);
 			PauseAndClearing();
 			return true;
 		case 5:
-			OutputInFile(MapP, MapCs, D500, D700, D1400, Graph);
+			OutputInFile(MapP, MapCs, FreePipes, Graph);
 			PauseAndClearing();
 			return true;
 		case 6:
-			ReadingFromFile(MapP, MapCs, D500, D700, D1400, Graph);
+			ReadingFromFile(MapP, MapCs, FreePipes, Graph);
 			PauseAndClearing();
 			return true;
 		case 7:
-			WorkingWithGraph(MapP, MapCs, D500, D700, D1400, Graph);
+			WorkingWithGraph(MapP, MapCs, FreePipes, Graph);
 			return true;
 		case 0:
 			cout << endl << "Вы хотите сохранить текущее состояние?" <<
 				endl << "Введите 1 для сохранения или 0, для выхода из программы." << endl;
-			if (EnteringCheckingBool()) { OutputInFile(MapP, MapCs, D500, D700, D1400, Graph);}
+			if (EnteringCheckingBool()) { OutputInFile(MapP, MapCs, FreePipes, Graph);}
 			return false;
 	}
 	
@@ -54,9 +54,8 @@ int main()
 	setlocale(LC_ALL, "rus"); //Подключение руссофикатора
 	unordered_map<int, Pipe> MapP;
 	unordered_map<int, Cs> MapCs;
-	forward_list<int> D500;
-	forward_list<int> D700;
-	forward_list<int> D1400;
+	forward_list<int> FreePipes;
+
 	unordered_map<int, pair <int, int>> Graph;
 
 	//Запуск консоли
@@ -71,5 +70,5 @@ int main()
 			<< "6. Загрузить" << endl
 			<< "7. Работа с графом" << endl
 			<< "0. Выход" << endl << endl;
-	} while (MainSharedConsole(MapP,MapCs,D500,D700,D1400, Graph) != 0);
+	} while (MainSharedConsole(MapP,MapCs, FreePipes, Graph) != 0);
 }

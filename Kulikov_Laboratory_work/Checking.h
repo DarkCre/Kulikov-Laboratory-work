@@ -4,6 +4,8 @@
 #include "Pipe.h"
 #include "Cs.h"
 #include <conio.h>
+#include <forward_list>
+#include <set>
 using namespace std;
 
 
@@ -41,6 +43,36 @@ bool CheckingAvailabilityID(int ID, const unordered_map<int, T>& Obj)
 	return true;
 }
 
+template<typename T>
+bool CheckingAvailabilityID(const set<int>& IDCsGraph, int& ID, unordered_map<int, T>& cs)
+{
+	if (IDCsGraph.find(ID) == IDCsGraph.end())
+	{
+		cout << "Данного ID не существует." << endl;
+		return false;
+	}
+	return true;
+}
+
+
+template<typename T>
+bool CheckingAvailabilityID(int ID, const unordered_map<int, T>& Obj, forward_list<int>& FreePipes)
+{
+	if (Obj.find(ID) == Obj.end())
+	{
+		cout << "Данного ID не существует." << endl;
+		return false;
+	}
+	for (const auto elem : FreePipes)
+	{
+		if (ID == elem)
+		{
+			return true;
+		}
+	}
+	cout << "Труба с ID "<<ID<<" используется в графе! Редактирование или удаление элемента не возможно" << endl;
+	return false;
+}
 
 //Фильтр для поиска
 template<typename T, typename T1>
@@ -78,6 +110,18 @@ bool EnteringCheckingBool();
 int IntInput(int beginning, int end);
 
 template<typename T>
+void InputAndCheckingAvailabilityID(unordered_map<int, T>& Obj, int& ID, forward_list<int>& FreePipes)
+{
+	do
+	{
+		ID = IntInput(0, T::GetID());
+		if (ID == 0)
+			break;
+		else if (CheckingAvailabilityID(ID, Obj,FreePipes))
+			break;
+	} while (true);
+}
+template<typename T>
 void InputAndCheckingAvailabilityID(unordered_map<int, T>& Obj, int& ID)
 {
 	do
@@ -87,6 +131,36 @@ void InputAndCheckingAvailabilityID(unordered_map<int, T>& Obj, int& ID)
 			break;
 		else if (CheckingAvailabilityID(ID, Obj))
 			break;
+	} while (true);
+}
+
+template<typename T>
+void InputAndCheckingAvailabilityID(unordered_map<int, pair <int, int>>& Obj, int& ID, unordered_map<int, T>& pipe)
+{
+	do
+	{
+		ID = IntInput(0, T::GetID());
+		if (ID == 0)
+			break;
+		else if (CheckingAvailabilityID(ID, Obj))
+			break;
+	} while (true);
+}
+
+
+template<typename T>
+void InputAndCheckingAvailabilityID(const set<int>& IDCsGraph, int& ID, unordered_map<int, T>& cs)
+{
+	do
+	{
+		ID = IntInput(0, T::GetID());
+		if (ID == 0)
+			break;
+		else
+		{
+			if (CheckingAvailabilityID( IDCsGraph,ID,cs))
+				break;
+		}
 	} while (true);
 }
 

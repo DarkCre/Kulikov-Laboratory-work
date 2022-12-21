@@ -131,6 +131,7 @@
     <ClCompile Include="Checking.cpp" />
     <ClCompile Include="Creature.cpp" />
     <ClCompile Include="Cs.cpp" />
+    <ClCompile Include="Ford_Fulkerson.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="OperatorOverloads.cpp" />
     <ClCompile Include="OutputAndMmodification.cpp" />
@@ -142,6 +143,7 @@
     <ClInclude Include="Checking.h" />
     <ClInclude Include="Creature.h" />
     <ClInclude Include="Cs.h" />
+    <ClInclude Include="Ford_Fulkerson.h" />
     <ClInclude Include="OperatorOverloads.h" />
     <ClInclude Include="OutputAndMmodification.h" />
     <ClInclude Include="Pipe.h" />

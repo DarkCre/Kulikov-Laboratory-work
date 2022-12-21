@@ -2,7 +2,7 @@
 #include "Checking.h"
 #include <forward_list>
 
-void CreatingPipe(unordered_map<int, Pipe>& MapP, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400);
+void CreatingPipe(unordered_map<int, Pipe>& MapP, forward_list<int>& FreePipes);
 
 //Создание нового элемента
 template<typename T>

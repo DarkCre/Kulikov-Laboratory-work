@@ -1,4 +1,5 @@
 #include "WorkingWithGraph.h"
+#include "Ford_Fulkerson.h"
 
 
 		int InputGraphIDBegin(unordered_map<int, Cs>& MapCs, int ID)
@@ -44,100 +45,92 @@
 			return IDEnd;
 		}
 
-			void Re_enteringOrCreating(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400)
+			void Re_enteringOrCreating(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes)
 		{
 			cout << "Труб для соединения не найдено. Вы хотите добавить новую трубу?" << endl;
 			cout << "Введите 1 для создания или 0 для повторного ввода размера." << endl;
 			if (EnteringCheckingBool())
 			{
-				CreatingPipe(MapP, D500, D700, D1400);
+				CreatingPipe(MapP, FreePipes);
 			}
 		}
 	
-		int InputGraphIDPipe(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400)
+		int InputGraphIDPipe(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes)
 		{
 			while (true)
 			{
 				cout << "Каким диаметром связать КС?" << endl;
-				cout << "Введите:" << endl
-					<< "1, если диаметр трубы = 500" << endl
-					<< "2, если диаметр трубы = 700" << endl
-					<< "3, если диаметр трубы = 1400" << endl;
-				int item = IntInput(1, 3);
 
-				if ((item == 1 && D500.empty()) || (item == 2 && D700.empty()) || (item == 3 && D1400.empty()))
-					Re_enteringOrCreating(MapP, MapCs, D500, D700, D1400);
-				else
+				double check;
+				int id = 0;
+				do
 				{
-					int Id;
-					if (item == 1)
+					cin >> check;
+				} while (!СheckingValues(check, cin, 0.0001));
+				
+				auto it0 = FreePipes.begin();
+				auto it1 = FreePipes.begin();
+				bool remfl = false;
+				while (it1 != FreePipes.end()) {
+					if (MapP.at(*it1).GetDia() == check)
 					{
-						Id = D500.front();
-						D500.pop_front();
+						id = *it1;
+						if (it1 == FreePipes.begin())
+							FreePipes.pop_front();
+						else
+							FreePipes.erase_after(it0);
+						remfl = true;
+						break;
 					}
-					else if (item == 2)
-					{
-						Id = D700.front();
-						D700.pop_front();
-					}
-					else
-					{
-						Id = D1400.front();
-						D1400.pop_front();
-					}
-					return Id;
+					it0 = it1++;
 				}
+
+				if (id==0)
+					Re_enteringOrCreating(MapP, MapCs, FreePipes);
+				else
+					return id;
 
 			}
 		}
 
-	void AddingAnEdgeToGraph(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
+	void AddingAnEdgeToGraph(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
 	{
 
 		int ID=0;
 		int IDBegin = InputGraphIDBegin(MapCs,ID);
 		int IDEnd = InputGraphIDEnd(MapCs, ID,IDBegin);
-		int IDPipe = InputGraphIDPipe(MapP, MapCs, D500, D700, D1400);
+		int IDPipe = InputGraphIDPipe(MapP, MapCs, FreePipes);
 	
 		Graph.emplace(IDPipe, pair<int, int>(IDBegin, IDEnd));
 
 	}
 
-	int SummCollumn(int n,int i, vector<vector<int>> AdjacencyMatrix)
+			void OutputAdjacencyMatrix(vector<vector<int>>& AdjacencyMatrix)
 	{
-		int Summ = 0;
-		for (int j = 1; j < n+2; ++j)
+		//вывод матрицы смежности
+		cout << "Матрица смежности:" << endl;
+		for (const auto& row : AdjacencyMatrix)
 		{
-			Summ+=AdjacencyMatrix[j][i];
+			for (const auto& item : row)
+			{
+				cout << ' ' << ' ' << item;
+			}
+			cout << endl;
 		}
-		return Summ;
 	}
 
-	int GraphManagementConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
-	{
-		int item = IntInput(0, 4);
-
-		switch (item)
+		int SummCollumn(int n,int i, vector<vector<int>> AdjacencyMatrix)
 		{
-		case 1:
-		{
-			if (!CheckingFulfillmentConditionsToGraph(MapCs))
-				return false;
-		
-			AddingAnEdgeToGraph(MapP, MapCs, D500, D700, D1400, Graph);
-
-			PauseAndClearing();
-			return true;
+			int Summ = 0;
+			for (int j = 1; j < n+2; ++j)
+			{
+				Summ+=AdjacencyMatrix[j][i];
+			}
+			return Summ;
 		}
-		case 2:
 
-			PauseAndClearing();
-			return true;
-		case 3:
+		bool SelectionOfTheCSGraphID(const unordered_map<int, pair <int, int>>& Graph, set<int>& IDCsGraph)
 		{
-			//выборка ID КС, между которыми есть хотя бы одна связь
-			set<int> IDCsGraph;
-
 			if (Graph.size() == 0)
 			{
 				cout << "Необходимо создать хотя бы одно соединение КС!";
@@ -148,18 +141,18 @@
 				IDCsGraph.emplace(elem.second.first);
 				IDCsGraph.emplace(elem.second.second);
 			}
+			return true;
+		}
 
-			int n = (int)IDCsGraph.size();
-			//создание заготовки для матрицы смежности
-			vector<vector<int>> AdjacencyMatrix = {vector<int>(n+1,0)};
-			
+		void CreatingAndFillingInTheAdjacencyMatrix(const unordered_map<int, pair <int, int>>& Graph, vector<vector<int>>& AdjacencyMatrix, int n, set<int>& IDCsGraph)
+		{
 			auto it = IDCsGraph.begin();
-			for (int i = 1;  i < n+1; ++i,++it)
+			for (int i = 1; i < n + 1; ++i, ++it)
 			{
 				AdjacencyMatrix[0][i] = *it;
 			}
 			it = IDCsGraph.begin();
-			for (int i = 0; i<n; ++i,++it)
+			for (int i = 0; i < n; ++i, ++it)
 			{
 				vector<int> row{ *it };
 				int k = 0;
@@ -188,24 +181,10 @@
 					}
 				}
 			}
+		}
 
-			//вывод матрицы смежности
-			cout << "Матрица смежности:" << endl;
-			for (const auto& row : AdjacencyMatrix)
-			{
-				for (const auto& item : row)
-				{
-					cout << ' ' << ' ' << item;
-				}
-				cout << endl;
-			}
-
-
-			AdjacencyMatrix.push_back(vector<int>(n + 1, -1));
-
-			//создание вектора топологической сортировки
-			//stack<int> SortingResult;
-			queue<int> SortingResult;
+		void CreatingTopologicalSortingQueue(int n, queue<int>& SortingResult, vector<vector<int>>& AdjacencyMatrix)
+		{
 			int k = 0;
 			while (k < n + 1 && SortingResult.size() != n)
 			{
@@ -214,7 +193,7 @@
 					if (SummCollumn(n, i, AdjacencyMatrix) == -1)
 					{
 						SortingResult.push(AdjacencyMatrix[0][i]);
-						AdjacencyMatrix[n + 1][i]=0;
+						AdjacencyMatrix[n + 1][i] = 0;
 						for (int j = 1; j < n + 1; ++j)
 						{
 							AdjacencyMatrix[i][j] = 0;
@@ -222,23 +201,132 @@
 						break;
 					}
 				}
-			++k;
+				++k;
 			}
 			if (k >= n + 1)
 			{
-				cout << "Топологическая сортировка для цикличного графа невозможна!"<<endl;
-				return 0;
+				cout << "Топологическая сортировка для цикличного графа невозможна!" << endl;
 			}
+		}
 
-			//вывод стека в консоль
-			cout << endl;
-			while (SortingResult.size() > 0)
+	bool TopologicalSorting(unordered_map<int, pair <int, int>>& Graph)
+	{
+		//выборка ID КС, между которыми есть хотя бы одна связь
+		set<int> IDCsGraph;
+		if (SelectionOfTheCSGraphID(Graph, IDCsGraph) == false)
+			return false;
+		int n = (int)IDCsGraph.size();
+		//создание заготовки для матрицы смежности
+		vector<vector<int>> AdjacencyMatrix = { vector<int>(n + 1,0) };
+		CreatingAndFillingInTheAdjacencyMatrix(Graph, AdjacencyMatrix, n, IDCsGraph);
+		OutputAdjacencyMatrix(AdjacencyMatrix);
+		AdjacencyMatrix.push_back(vector<int>(n + 1, -1));
+		//создание вектора топологической сортировки
+		queue<int> SortingResult;
+		CreatingTopologicalSortingQueue(n, SortingResult, AdjacencyMatrix);
+		//вывод стека в консоль
+		cout << endl;
+		while (SortingResult.size() > 0)
+		{
+			cout << SortingResult.front() << " ";
+			SortingResult.pop();
+		}
+		cout << endl;
+	}
+
+	int GraphManagementConsole(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
+	{
+		int item = IntInput(0, 4);
+
+		switch (item)
+		{
+		case 1:
+		{
+			if (!CheckingFulfillmentConditionsToGraph(MapCs))
+				return false;
+		
+			AddingAnEdgeToGraph(MapP, MapCs, FreePipes, Graph);
+
+			PauseAndClearing();
+			return true;
+		}
+		case 2:
+			{//прописать проверку на наличие элементов в графе
+			cout << "Введите 0, для удаления труб из графа" << endl
+				<< "Или 1, для удаления вершин из графа" << endl;
+
+			int item1 = IntInput(0, 1);
+			switch (item1)
 			{
-				cout<<SortingResult.front()<< " ";
-				SortingResult.pop();
-			}
-			cout << endl;
+				
+			case 0:
+			{
+				cout << "Введите через Enter ID труб, которые нужно удалить." << endl
+					<< "Для завершения ввода введите 0" << endl;
+				int ID;
+				unordered_set<int> SetP;
+				
+				InputAndCheckingAvailabilityID(Graph, ID,MapP);
+				while (ID != 0)
+				{
+					SetP.emplace(ID);
+						InputAndCheckingAvailabilityID(Graph, ID, MapP);
+				}
+				cout << endl;
 
+				for (const auto elem : SetP)
+				{
+					MapCs.at(Graph.at(elem).first).StopWorkshop();
+					MapCs.at(Graph.at(elem).second).StopWorkshop();
+					Graph.erase(elem);
+					FreePipes.push_front(elem);
+				}
+
+			}
+			case 1:
+			{
+				cout << "Введите через Enter ID КС, которые нужно удалить." << endl
+					<< "Для завершения ввода введите 0" << endl;
+				int ID;
+				unordered_set<int> SetP;
+
+				set<int> IDCsGraph;
+				if (SelectionOfTheCSGraphID(Graph, IDCsGraph) == false)
+					return false;
+				int n = (int)IDCsGraph.size();
+				//создание заготовки для матрицы смежности
+				vector<vector<int>> AdjacencyMatrix = { vector<int>(n + 1,0) };
+				CreatingAndFillingInTheAdjacencyMatrix(Graph, AdjacencyMatrix, n, IDCsGraph);
+
+				InputAndCheckingAvailabilityID(IDCsGraph, ID, MapCs);
+				while (ID != 0)
+				{
+					SetP.emplace(ID);
+					InputAndCheckingAvailabilityID(IDCsGraph, ID, MapCs);
+				}
+				cout << endl;
+
+				for 
+
+				for (const auto elem : SetP)
+				{
+					MapCs.at(Graph.at(elem).first).StopWorkshop();
+					MapCs.at(Graph.at(elem).second).StopWorkshop();
+					Graph.erase(elem);
+					FreePipes.push_front(elem);
+				}
+			}
+						
+			}
+
+		}
+			//DeletingGraphObjects(Graph);
+
+			PauseAndClearing();
+			return true;
+		case 3:
+		{
+			TopologicalSorting(Graph);
 			PauseAndClearing();
 			return true;
 		}
@@ -253,16 +341,15 @@
 		return true;
 	}
 
-void WorkingWithGraph(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& D500, forward_list<int>& D700, forward_list<int>& D1400, unordered_map<int, pair <int, int>>& Graph)
+void WorkingWithGraph(unordered_map<int, Pipe>& MapP, unordered_map<int, Cs>& MapCs, forward_list<int>& FreePipes, unordered_map<int, pair <int, int>>& Graph)
 {
-
 	do {
 		cout << endl;
 		cout << " Меню работы с графом газотранспортной сети: " << endl
 			<< "1. Соединить КС" << endl
-			<< "2. Удалить трубу между КС" << endl
+			<< "2. Удалить объект" << endl
 			<< "3. Провести топологическую сортировку" << endl
-			<< "4. Вывести информацию по соеденённым КС"<<endl
+			<< "4. Вывести информацию по соеднённым КС"<<endl
 			<< "0. Выход в Главное меню" << endl << endl;
-	} while (GraphManagementConsole(MapP, MapCs, D500, D700, D1400, Graph) != 0);
+	} while (GraphManagementConsole(MapP, MapCs, FreePipes, Graph) != 0);
 }
